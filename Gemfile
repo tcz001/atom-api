@@ -50,5 +50,14 @@ group :development do
   gem 'rack-contrib'
   gem 'grape-swagger'
   gem 'grape-swagger-rails'
+
+  # db cleaner Factory_girl and Faker
+  gem 'database_cleaner'
+  gem 'factory_girl_rails'
+  gem 'faker'
+
+  # pry
+  gem 'pry-rails'
+  gem 'pry-rescue'
 end
 

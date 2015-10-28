@@ -5,4 +5,9 @@
 #
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
-User.create([{name:'fan',email:'fan.torchz@gmail.com',mobile:'18611708825'}])
+require 'factory_girl'
+require 'faker'
+
+DatabaseCleaner.clean_with(:truncation)
+
+FactoryGirl.create_list(:user, 25)
