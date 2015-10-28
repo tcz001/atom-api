@@ -5,6 +5,7 @@ module API
     default_format :json
 
     mount API::Users => '/users'
+    mount API::Games => '/games'
 
     add_swagger_documentation(
       base_path: "/api",

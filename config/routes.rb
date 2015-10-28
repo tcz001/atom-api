@@ -1,5 +1,8 @@
 Rails.application.routes.draw do
 
+  resources :games
+  resources :games
+  resources :games
   resources :users
   # API+API Documentation
   mount API::Base => '/api'
