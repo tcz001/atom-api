@@ -9,11 +9,13 @@ module API
 
     desc 'return a Game info'
     params do
+      optional :id, type: Integer, desc: 'Game id.'
       optional :name, type: String, desc: 'Game name.'
     end
     get "info" do
       if (conditions = declared(params, include_missing: false)).present?
-        present Game.find_by(conditions), with: API::Entities::Game
+        @game = Game.find_by(conditions)
+        present @game, with: API::Entities::Game
       end
     end
 

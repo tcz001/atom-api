@@ -11,7 +11,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151028192754) do
+ActiveRecord::Schema.define(version: 20151029222944) do
+
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
+  create_table "game_versions", force: :cascade do |t|
+    t.integer  "game_id"
+    t.string   "version"
+    t.string   "language"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "game_versions", ["game_id"], name: "index_game_versions_on_game_id", using: :btree
 
   create_table "games", force: :cascade do |t|
     t.string   "name"
@@ -40,4 +53,5 @@ ActiveRecord::Schema.define(version: 20151028192754) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "game_versions", "games"
 end

@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Game:</strong>
+  <%= @game_version.game %>
+</p>
+
+<p>
+  <strong>Version:</strong>
+  <%= @game_version.version %>
+</p>
+
+<p>
+  <strong>Language:</strong>
+  <%= @game_version.language %>
+</p>
+
+<%= link_to 'Edit', edit_game_version_path(@game_version) %> |
+<%= link_to 'Back', game_versions_path %>

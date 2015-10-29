@@ -8,6 +8,7 @@ module API
       expose :developer
       expose :minplayer
       expose :maxplayer
+      expose :game_versions, as: :versions, using: API::Entities::GameVersion
     end
   end
 end

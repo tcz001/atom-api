@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+  resources :game_versions
   resources :games
   resources :games
   resources :games

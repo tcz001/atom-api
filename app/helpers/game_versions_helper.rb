@@ -1,0 +1,2 @@
+module GameVersionsHelper
+end

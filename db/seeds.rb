@@ -11,4 +11,5 @@ require 'faker'
 DatabaseCleaner.clean_with(:truncation)
 
 FactoryGirl.create_list(:user, 25)
-FactoryGirl.create_list(:game, 25)
+games = FactoryGirl.create_list(:game, 25)
+games.each{|g|FactoryGirl.create_list(:game_version, 3, game: g)}
