@@ -12,7 +12,9 @@ module API
       optional :name, type: String, desc: 'Game name.'
     end
     get "info" do
-      present Game.find_by(declared(params, include_missing: false)), with: API::Entities::Game
+      if (conditions = declared(params, include_missing: false)).present?
+        present Game.find_by(conditions), with: API::Entities::Game
+      end
     end
 
   end

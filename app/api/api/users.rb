@@ -14,7 +14,9 @@ module API
       optional :email, type: String, desc: 'User email.'
     end
     get "info" do
-      present User.find_by(declared(params, include_missing: false)), with: API::Entities::User
+      if (conditions = declared(params, include_missing: false)).present?
+        present User.find_by(conditions), with: API::Entities::User
+      end
     end
 
   end
