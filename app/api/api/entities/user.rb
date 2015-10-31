@@ -1,9 +1,8 @@
 module API
   module Entities
     class User < Grape::Entity
-      expose :name
+      expose :username
       expose :email
-      expose :mobile
     end
   end
 end

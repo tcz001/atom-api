@@ -1,10 +1,11 @@
 Rails.application.routes.draw do
 
+  devise_for :users
+  use_doorkeeper
   resources :game_versions
   resources :games
   resources :games
   resources :games
-  resources :users
   # API+API Documentation
   mount API::Base => '/api'
   mount GrapeSwaggerRails::Engine => '/apidoc'
