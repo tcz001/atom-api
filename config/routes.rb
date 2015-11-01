@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+  resources :accounts
   devise_for :users
   use_doorkeeper
   resources :game_versions

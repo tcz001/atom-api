@@ -11,10 +11,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151031191547) do
+ActiveRecord::Schema.define(version: 20151101145255) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "accounts", force: :cascade do |t|
+    t.integer  "game_version_id"
+    t.integer  "user_id"
+    t.string   "account"
+    t.string   "password"
+    t.integer  "status"
+    t.integer  "is_valid"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+  end
+
+  add_index "accounts", ["game_version_id"], name: "index_accounts_on_game_version_id", using: :btree
+  add_index "accounts", ["user_id"], name: "index_accounts_on_user_id", using: :btree
 
   create_table "game_versions", force: :cascade do |t|
     t.integer  "game_id"
@@ -98,5 +112,7 @@ ActiveRecord::Schema.define(version: 20151031191547) do
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   add_index "users", ["username"], name: "index_users_on_username", unique: true, using: :btree
 
+  add_foreign_key "accounts", "game_versions"
+  add_foreign_key "accounts", "users"
   add_foreign_key "game_versions", "games"
 end
