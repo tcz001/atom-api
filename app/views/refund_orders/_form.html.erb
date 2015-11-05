@@ -1,0 +1,45 @@
+<%= form_for(@refund_order) do |f| %>
+  <% if @refund_order.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@refund_order.errors.count, "error") %> prohibited this refund_order from being saved:</h2>
+
+      <ul>
+      <% @refund_order.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :third_party_id %><br>
+    <%= f.text_field :third_party_id %>
+  </div>
+  <div class="field">
+    <%= f.label :third_pary_id %><br>
+    <%= f.number_field :third_pary_id %>
+  </div>
+  <div class="field">
+    <%= f.label :payment_account %><br>
+    <%= f.text_field :payment_account %>
+  </div>
+  <div class="field">
+    <%= f.label :mobile %><br>
+    <%= f.text_field :mobile %>
+  </div>
+  <div class="field">
+    <%= f.label :customer_name %><br>
+    <%= f.text_field :customer_name %>
+  </div>
+  <div class="field">
+    <%= f.label :why %><br>
+    <%= f.text_field :why %>
+  </div>
+  <div class="field">
+    <%= f.label :status %><br>
+    <%= f.number_field :status %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

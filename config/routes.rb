@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
 
+  resources :lease_orders
+  resources :refund_orders
   resources :accounts
   devise_for :users
   use_doorkeeper

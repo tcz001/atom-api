@@ -11,69 +11,74 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151101145255) do
-
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+ActiveRecord::Schema.define(version: 20151105091228) do
 
   create_table "accounts", force: :cascade do |t|
-    t.integer  "game_version_id"
-    t.integer  "user_id"
-    t.string   "account"
-    t.string   "password"
-    t.integer  "status"
-    t.integer  "is_valid"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.integer  "game_version_id", limit: 4
+    t.integer  "user_id",         limit: 4
+    t.string   "account",         limit: 255
+    t.string   "password",        limit: 255
+    t.integer  "status",          limit: 4
+    t.integer  "is_valid",        limit: 4
+    t.decimal  "deposit",                     precision: 10, scale: 1
+    t.datetime "created_at",                                           null: false
+    t.datetime "updated_at",                                           null: false
   end
 
   add_index "accounts", ["game_version_id"], name: "index_accounts_on_game_version_id", using: :btree
   add_index "accounts", ["user_id"], name: "index_accounts_on_user_id", using: :btree
 
+  create_table "game_types", force: :cascade do |t|
+    t.string   "name",       limit: 255
+    t.integer  "is_valid",   limit: 4
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
   create_table "game_versions", force: :cascade do |t|
-    t.integer  "game_id"
-    t.string   "version"
-    t.string   "language"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.integer  "game_id",    limit: 4
+    t.string   "version",    limit: 255
+    t.string   "language",   limit: 255
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
   end
 
   add_index "game_versions", ["game_id"], name: "index_game_versions_on_game_id", using: :btree
 
   create_table "games", force: :cascade do |t|
-    t.string   "name"
+    t.string   "name",       limit: 255
     t.boolean  "isHot"
-    t.string   "gameType"
-    t.string   "nickName"
-    t.string   "developer"
-    t.integer  "minplayer"
-    t.integer  "maxplayer"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string   "gameType",   limit: 255
+    t.string   "nickName",   limit: 255
+    t.string   "developer",  limit: 255
+    t.integer  "minplayer",  limit: 4
+    t.integer  "maxplayer",  limit: 4
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
   end
 
   create_table "oauth_access_grants", force: :cascade do |t|
-    t.integer  "resource_owner_id", null: false
-    t.integer  "application_id",    null: false
-    t.string   "token",             null: false
-    t.integer  "expires_in",        null: false
-    t.text     "redirect_uri",      null: false
-    t.datetime "created_at",        null: false
+    t.integer  "resource_owner_id", limit: 4,     null: false
+    t.integer  "application_id",    limit: 4,     null: false
+    t.string   "token",             limit: 255,   null: false
+    t.integer  "expires_in",        limit: 4,     null: false
+    t.text     "redirect_uri",      limit: 65535, null: false
+    t.datetime "created_at",                      null: false
     t.datetime "revoked_at"
-    t.string   "scopes"
+    t.string   "scopes",            limit: 255
   end
 
   add_index "oauth_access_grants", ["token"], name: "index_oauth_access_grants_on_token", unique: true, using: :btree
 
   create_table "oauth_access_tokens", force: :cascade do |t|
-    t.integer  "resource_owner_id"
-    t.integer  "application_id"
-    t.string   "token",             null: false
-    t.string   "refresh_token"
-    t.integer  "expires_in"
+    t.integer  "resource_owner_id", limit: 4
+    t.integer  "application_id",    limit: 4
+    t.string   "token",             limit: 255, null: false
+    t.string   "refresh_token",     limit: 255
+    t.integer  "expires_in",        limit: 4
     t.datetime "revoked_at"
-    t.datetime "created_at",        null: false
-    t.string   "scopes"
+    t.datetime "created_at",                    null: false
+    t.string   "scopes",            limit: 255
   end
 
   add_index "oauth_access_tokens", ["refresh_token"], name: "index_oauth_access_tokens_on_refresh_token", unique: true, using: :btree
@@ -81,31 +86,67 @@ ActiveRecord::Schema.define(version: 20151101145255) do
   add_index "oauth_access_tokens", ["token"], name: "index_oauth_access_tokens_on_token", unique: true, using: :btree
 
   create_table "oauth_applications", force: :cascade do |t|
-    t.string   "name",                      null: false
-    t.string   "uid",                       null: false
-    t.string   "secret",                    null: false
-    t.text     "redirect_uri",              null: false
-    t.string   "scopes",       default: "", null: false
+    t.string   "name",         limit: 255,                null: false
+    t.string   "uid",          limit: 255,                null: false
+    t.string   "secret",       limit: 255,                null: false
+    t.text     "redirect_uri", limit: 65535,              null: false
+    t.string   "scopes",       limit: 255,   default: "", null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   add_index "oauth_applications", ["uid"], name: "index_oauth_applications_on_uid", unique: true, using: :btree
 
+  create_table "refund_orders", force: :cascade do |t|
+    t.integer  "third_party_id",  limit: 4
+    t.string   "payment_account", limit: 255
+    t.string   "mobile",          limit: 255
+    t.string   "customer_name",   limit: 255
+    t.string   "why",             limit: 255
+    t.integer  "status",          limit: 4
+    t.integer  "is_valid",        limit: 4
+    t.decimal  "price",                       precision: 10, scale: 2
+    t.datetime "created_at",                                           null: false
+    t.datetime "updated_at",                                           null: false
+  end
+
+  add_index "refund_orders", ["third_party_id"], name: "index_refund_orders_on_third_party_id", using: :btree
+
+  create_table "third_parties", force: :cascade do |t|
+    t.string   "party_id",   limit: 255
+    t.integer  "type",       limit: 4
+    t.string   "mobile",     limit: 255
+    t.string   "name",       limit: 255
+    t.integer  "is_valid",   limit: 4
+    t.decimal  "deposit",                precision: 10, scale: 2
+    t.datetime "created_at",                                      null: false
+    t.datetime "updated_at",                                      null: false
+  end
+
+  create_table "use_explains", force: :cascade do |t|
+    t.string   "title",      limit: 255
+    t.string   "detail",     limit: 255
+    t.integer  "type",       limit: 4
+    t.integer  "sort",       limit: 4
+    t.integer  "is_valid",   limit: 4
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
   create_table "users", force: :cascade do |t|
-    t.string   "email",                  default: "", null: false
-    t.string   "encrypted_password",     default: "", null: false
-    t.string   "reset_password_token"
+    t.string   "email",                  limit: 255, default: ""
+    t.string   "encrypted_password",     limit: 255, default: "", null: false
+    t.string   "reset_password_token",   limit: 255
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          default: 0,  null: false
+    t.integer  "sign_in_count",          limit: 4,   default: 0,  null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
-    t.inet     "current_sign_in_ip"
-    t.inet     "last_sign_in_ip"
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
-    t.string   "username"
+    t.integer  "current_sign_in_ip",     limit: 4
+    t.integer  "last_sign_in_ip",        limit: 4
+    t.datetime "created_at",                                      null: false
+    t.datetime "updated_at",                                      null: false
+    t.string   "username",               limit: 255
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
@@ -115,4 +156,5 @@ ActiveRecord::Schema.define(version: 20151101145255) do
   add_foreign_key "accounts", "game_versions"
   add_foreign_key "accounts", "users"
   add_foreign_key "game_versions", "games"
+  add_foreign_key "refund_orders", "third_parties"
 end

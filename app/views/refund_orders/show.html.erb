@@ -1,0 +1,39 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Third party:</strong>
+  <%= @refund_order.third_party %>
+</p>
+
+<p>
+  <strong>Third pary:</strong>
+  <%= @refund_order.third_pary_id %>
+</p>
+
+<p>
+  <strong>Payment account:</strong>
+  <%= @refund_order.payment_account %>
+</p>
+
+<p>
+  <strong>Mobile:</strong>
+  <%= @refund_order.mobile %>
+</p>
+
+<p>
+  <strong>Customer name:</strong>
+  <%= @refund_order.customer_name %>
+</p>
+
+<p>
+  <strong>Why:</strong>
+  <%= @refund_order.why %>
+</p>
+
+<p>
+  <strong>Status:</strong>
+  <%= @refund_order.status %>
+</p>
+
+<%= link_to 'Edit', edit_refund_order_path(@refund_order) %> |
+<%= link_to 'Back', refund_orders_path %>

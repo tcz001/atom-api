@@ -1,0 +1,24 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Games:</strong>
+  <%= @lease_order.games %>
+</p>
+
+<p>
+  <strong>Game versions:</strong>
+  <%= @lease_order.game_versions %>
+</p>
+
+<p>
+  <strong>Third partys:</strong>
+  <%= @lease_order.third_partys %>
+</p>
+
+<p>
+  <strong>Irb:</strong>
+  <%= @lease_order.irb %>
+</p>
+
+<%= link_to 'Edit', edit_lease_order_path(@lease_order) %> |
+<%= link_to 'Back', lease_orders_path %>

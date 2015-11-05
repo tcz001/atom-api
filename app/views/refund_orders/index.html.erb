@@ -1,0 +1,39 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Refund Orders</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Third party</th>
+      <th>Third pary</th>
+      <th>Payment account</th>
+      <th>Mobile</th>
+      <th>Customer name</th>
+      <th>Why</th>
+      <th>Status</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @refund_orders.each do |refund_order| %>
+      <tr>
+        <td><%= refund_order.third_party %></td>
+        <td><%= refund_order.third_pary_id %></td>
+        <td><%= refund_order.payment_account %></td>
+        <td><%= refund_order.mobile %></td>
+        <td><%= refund_order.customer_name %></td>
+        <td><%= refund_order.why %></td>
+        <td><%= refund_order.status %></td>
+        <td><%= link_to 'Show', refund_order %></td>
+        <td><%= link_to 'Edit', edit_refund_order_path(refund_order) %></td>
+        <td><%= link_to 'Destroy', refund_order, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Refund order', new_refund_order_path %>

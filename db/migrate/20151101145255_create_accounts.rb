@@ -7,6 +7,7 @@ class CreateAccounts < ActiveRecord::Migration
       t.string :password
       t.integer :status
       t.integer :is_valid
+      t.column :deposit, 'decimal(9,2)' 
 
       t.timestamps null: false
     end
