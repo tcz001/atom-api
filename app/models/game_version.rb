@@ -8,9 +8,19 @@ class GameVersion < ActiveRecord::Base
           2: '中文版',
           3: '香港繁体版',
       },
+      version: {
+          0: '港版',
+          1: '美版',
+          2: '日版',
+          3: '国行',
+      },
       
   }
   def display_language
     @@i18n[:language][self.language.to_sym]
+  end
+  def display_version
+    @@i18n[:version][self.version.to_sym]
+    
   end
 end
