@@ -20,9 +20,9 @@ ActiveRecord::Schema.define(version: 20151105092326) do
     t.string   "password",        limit: 255
     t.integer  "status",          limit: 4
     t.integer  "is_valid",        limit: 4
-    t.decimal  "deposit",                     precision: 10, scale: 1
-    t.datetime "created_at",                                           null: false
-    t.datetime "updated_at",                                           null: false
+    t.decimal  "deposit",                     precision: 9, scale: 2
+    t.datetime "created_at",                                          null: false
+    t.datetime "updated_at",                                          null: false
   end
 
   add_index "accounts", ["game_version_id"], name: "index_accounts_on_game_version_id", using: :btree
@@ -36,11 +36,14 @@ ActiveRecord::Schema.define(version: 20151105092326) do
   end
 
   create_table "game_versions", force: :cascade do |t|
-    t.integer  "game_id",    limit: 4
-    t.string   "version",    limit: 255
-    t.string   "language",   limit: 255
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.integer  "game_id",         limit: 4
+    t.integer  "version",         limit: 4
+    t.integer  "language",        limit: 4
+    t.integer  "is_valid",        limit: 4
+    t.decimal  "original_price",            precision: 9, scale: 2
+    t.decimal  "reference_price",           precision: 9, scale: 2
+    t.datetime "created_at",                                        null: false
+    t.datetime "updated_at",                                        null: false
   end
 
   add_index "game_versions", ["game_id"], name: "index_game_versions_on_game_id", using: :btree
@@ -125,9 +128,9 @@ ActiveRecord::Schema.define(version: 20151105092326) do
     t.string   "why",             limit: 255
     t.integer  "status",          limit: 4
     t.integer  "is_valid",        limit: 4
-    t.decimal  "price",                       precision: 10, scale: 2
-    t.datetime "created_at",                                           null: false
-    t.datetime "updated_at",                                           null: false
+    t.decimal  "price",                       precision: 9, scale: 2
+    t.datetime "created_at",                                          null: false
+    t.datetime "updated_at",                                          null: false
   end
 
   add_index "refund_orders", ["third_party_id"], name: "index_refund_orders_on_third_party_id", using: :btree
@@ -138,9 +141,9 @@ ActiveRecord::Schema.define(version: 20151105092326) do
     t.string   "mobile",     limit: 255
     t.string   "name",       limit: 255
     t.integer  "is_valid",   limit: 4
-    t.decimal  "deposit",                precision: 10, scale: 2
-    t.datetime "created_at",                                      null: false
-    t.datetime "updated_at",                                      null: false
+    t.decimal  "deposit",                precision: 9, scale: 2
+    t.datetime "created_at",                                     null: false
+    t.datetime "updated_at",                                     null: false
   end
 
   create_table "use_explains", force: :cascade do |t|
