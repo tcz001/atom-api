@@ -16,9 +16,9 @@ class GameVersion < ActiveRecord::Base
       },
   }
   def display_language
-    @@i18n[:language][self.language.to_sym]
+    @@i18n[:language][self.language]
   end
   def display_version
-    @@i18n[:version][self.version.to_sym]
+    @@i18n[:version][self.version]
   end
 end

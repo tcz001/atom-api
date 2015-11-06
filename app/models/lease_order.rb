@@ -14,6 +14,6 @@ class LeaseOrder < ActiveRecord::Base
       },
   }
   def display_status
-    @@i18n[:status][self.status.to_sym]
+    @@i18n[:status][self.status]
   end
 end
