@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151105091228) do
+ActiveRecord::Schema.define(version: 20151105092326) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer  "game_version_id", limit: 4
@@ -56,6 +56,26 @@ ActiveRecord::Schema.define(version: 20151105091228) do
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
   end
+
+  create_table "lease_orders", force: :cascade do |t|
+    t.integer  "game_id",         limit: 4
+    t.integer  "game_version_id", limit: 4
+    t.integer  "third_party_id",  limit: 4
+    t.decimal  "loan_price",                  precision: 9, scale: 2
+    t.datetime "loan_time"
+    t.integer  "is_valid",        limit: 4
+    t.integer  "pay_type",        limit: 4
+    t.integer  "status",          limit: 4
+    t.integer  "code",            limit: 4
+    t.string   "account",         limit: 255
+    t.string   "password",        limit: 255
+    t.datetime "created_at",                                          null: false
+    t.datetime "updated_at",                                          null: false
+  end
+
+  add_index "lease_orders", ["game_id"], name: "index_lease_orders_on_game_id", using: :btree
+  add_index "lease_orders", ["game_version_id"], name: "index_lease_orders_on_game_version_id", using: :btree
+  add_index "lease_orders", ["third_party_id"], name: "index_lease_orders_on_third_party_id", using: :btree
 
   create_table "oauth_access_grants", force: :cascade do |t|
     t.integer  "resource_owner_id", limit: 4,     null: false
@@ -156,5 +176,8 @@ ActiveRecord::Schema.define(version: 20151105091228) do
   add_foreign_key "accounts", "game_versions"
   add_foreign_key "accounts", "users"
   add_foreign_key "game_versions", "games"
+  add_foreign_key "lease_orders", "game_versions"
+  add_foreign_key "lease_orders", "games"
+  add_foreign_key "lease_orders", "third_parties"
   add_foreign_key "refund_orders", "third_parties"
 end
