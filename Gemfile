@@ -40,6 +40,13 @@ gem 'doorkeeper'
 # Use devise for user system
 gem 'devise'
 
+# Swagger UI as Rails Engine for grape-swagger gem.
+gem 'grape'
+gem 'grape-entity'
+gem 'rack-contrib'
+gem 'grape-swagger'
+gem 'grape-swagger-rails'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
@@ -51,13 +58,6 @@ group :development do
 
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
-
-  # Swagger UI as Rails Engine for grape-swagger gem.
-  gem 'grape'
-  gem 'grape-entity'
-  gem 'rack-contrib'
-  gem 'grape-swagger'
-  gem 'grape-swagger-rails'
 
   # db cleaner Factory_girl and Faker
   gem 'database_cleaner'
