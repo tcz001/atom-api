@@ -1,13 +1,12 @@
 class CreateThirdParties < ActiveRecord::Migration
   def change
     create_table :third_parties do |t|
-      t.string :party_id
+      t.string :open_id
       t.integer :type
-      t.string :mobile
-      t.string :name
-      t.integer :is_valid
-      t.column :deposit, 'decimal(9,2)'  
 
+      t.references :user, index: true, foreign_key: true
+
+      t.integer :is_valid
       t.timestamps null: false
     end
   end

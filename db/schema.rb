@@ -11,22 +11,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151105092326) do
+ActiveRecord::Schema.define(version: 20151112245255) do
 
   create_table "accounts", force: :cascade do |t|
-    t.integer  "game_version_id", limit: 4
-    t.integer  "user_id",         limit: 4
     t.string   "account",         limit: 255
     t.string   "password",        limit: 255
     t.integer  "status",          limit: 4
+    t.datetime "start_at"
+    t.datetime "expire_at"
+    t.integer  "game_version_id", limit: 4
+    t.integer  "lease_order_id",  limit: 4
     t.integer  "is_valid",        limit: 4
-    t.decimal  "deposit",                     precision: 9, scale: 2
-    t.datetime "created_at",                                          null: false
-    t.datetime "updated_at",                                          null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
   end
 
   add_index "accounts", ["game_version_id"], name: "index_accounts_on_game_version_id", using: :btree
-  add_index "accounts", ["user_id"], name: "index_accounts_on_user_id", using: :btree
+  add_index "accounts", ["lease_order_id"], name: "index_accounts_on_lease_order_id", using: :btree
 
   create_table "game_types", force: :cascade do |t|
     t.string   "name",       limit: 255
@@ -36,12 +37,12 @@ ActiveRecord::Schema.define(version: 20151105092326) do
   end
 
   create_table "game_versions", force: :cascade do |t|
-    t.integer  "game_id",         limit: 4
     t.integer  "version",         limit: 4
     t.integer  "language",        limit: 4
-    t.integer  "is_valid",        limit: 4
     t.decimal  "original_price",            precision: 9, scale: 2
     t.decimal  "reference_price",           precision: 9, scale: 2
+    t.integer  "game_id",         limit: 4
+    t.integer  "is_valid",        limit: 4
     t.datetime "created_at",                                        null: false
     t.datetime "updated_at",                                        null: false
   end
@@ -49,36 +50,33 @@ ActiveRecord::Schema.define(version: 20151105092326) do
   add_index "game_versions", ["game_id"], name: "index_game_versions_on_game_id", using: :btree
 
   create_table "games", force: :cascade do |t|
-    t.string   "name",       limit: 255
-    t.boolean  "isHot"
-    t.string   "gameType",   limit: 255
-    t.string   "nickName",   limit: 255
-    t.string   "developer",  limit: 255
-    t.integer  "minplayer",  limit: 4
-    t.integer  "maxplayer",  limit: 4
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.string   "name",           limit: 255
+    t.string   "nick_name",      limit: 255
+    t.string   "developer",      limit: 255
+    t.integer  "min_player_num", limit: 4
+    t.integer  "max_player_num", limit: 4
+    t.boolean  "is_hot"
+    t.integer  "game_type_id",   limit: 4
+    t.integer  "is_valid",       limit: 4
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
   end
+
+  add_index "games", ["game_type_id"], name: "index_games_on_game_type_id", using: :btree
 
   create_table "lease_orders", force: :cascade do |t|
-    t.integer  "game_id",         limit: 4
-    t.integer  "game_version_id", limit: 4
-    t.integer  "third_party_id",  limit: 4
-    t.decimal  "loan_price",                  precision: 9, scale: 2
-    t.datetime "loan_time"
-    t.integer  "is_valid",        limit: 4
-    t.integer  "pay_type",        limit: 4
-    t.integer  "status",          limit: 4
-    t.integer  "code",            limit: 4
-    t.string   "account",         limit: 255
-    t.string   "password",        limit: 255
-    t.datetime "created_at",                                          null: false
-    t.datetime "updated_at",                                          null: false
+    t.string   "serial_number", limit: 255
+    t.integer  "pay_type",      limit: 4
+    t.integer  "status",        limit: 4
+    t.decimal  "total_amount",              precision: 9, scale: 2
+    t.integer  "user_id",       limit: 4
+    t.integer  "is_valid",      limit: 4
+    t.datetime "created_at",                                        null: false
+    t.datetime "updated_at",                                        null: false
   end
 
-  add_index "lease_orders", ["game_id"], name: "index_lease_orders_on_game_id", using: :btree
-  add_index "lease_orders", ["game_version_id"], name: "index_lease_orders_on_game_version_id", using: :btree
-  add_index "lease_orders", ["third_party_id"], name: "index_lease_orders_on_third_party_id", using: :btree
+  add_index "lease_orders", ["serial_number"], name: "index_lease_orders_on_serial_number", using: :btree
+  add_index "lease_orders", ["user_id"], name: "index_lease_orders_on_user_id", using: :btree
 
   create_table "oauth_access_grants", force: :cascade do |t|
     t.integer  "resource_owner_id", limit: 4,     null: false
@@ -120,41 +118,16 @@ ActiveRecord::Schema.define(version: 20151105092326) do
 
   add_index "oauth_applications", ["uid"], name: "index_oauth_applications_on_uid", unique: true, using: :btree
 
-  create_table "refund_orders", force: :cascade do |t|
-    t.integer  "third_party_id",  limit: 4
-    t.string   "payment_account", limit: 255
-    t.string   "mobile",          limit: 255
-    t.string   "customer_name",   limit: 255
-    t.string   "why",             limit: 255
-    t.integer  "status",          limit: 4
-    t.integer  "is_valid",        limit: 4
-    t.decimal  "price",                       precision: 9, scale: 2
-    t.datetime "created_at",                                          null: false
-    t.datetime "updated_at",                                          null: false
-  end
-
-  add_index "refund_orders", ["third_party_id"], name: "index_refund_orders_on_third_party_id", using: :btree
-
   create_table "third_parties", force: :cascade do |t|
-    t.string   "party_id",   limit: 255
+    t.string   "open_id",    limit: 255
     t.integer  "type",       limit: 4
-    t.string   "mobile",     limit: 255
-    t.string   "name",       limit: 255
-    t.integer  "is_valid",   limit: 4
-    t.decimal  "deposit",                precision: 9, scale: 2
-    t.datetime "created_at",                                     null: false
-    t.datetime "updated_at",                                     null: false
-  end
-
-  create_table "use_explains", force: :cascade do |t|
-    t.string   "title",      limit: 255
-    t.string   "detail",     limit: 255
-    t.integer  "type",       limit: 4
-    t.integer  "sort",       limit: 4
+    t.integer  "user_id",    limit: 4
     t.integer  "is_valid",   limit: 4
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
   end
+
+  add_index "third_parties", ["user_id"], name: "index_third_parties_on_user_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                  limit: 255, default: ""
@@ -177,10 +150,9 @@ ActiveRecord::Schema.define(version: 20151105092326) do
   add_index "users", ["username"], name: "index_users_on_username", unique: true, using: :btree
 
   add_foreign_key "accounts", "game_versions"
-  add_foreign_key "accounts", "users"
+  add_foreign_key "accounts", "lease_orders"
   add_foreign_key "game_versions", "games"
-  add_foreign_key "lease_orders", "game_versions"
-  add_foreign_key "lease_orders", "games"
-  add_foreign_key "lease_orders", "third_parties"
-  add_foreign_key "refund_orders", "third_parties"
+  add_foreign_key "games", "game_types"
+  add_foreign_key "lease_orders", "users"
+  add_foreign_key "third_parties", "users"
 end
