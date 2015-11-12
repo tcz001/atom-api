@@ -46,6 +46,7 @@ gem 'grape-entity'
 gem 'rack-contrib'
 gem 'grape-swagger'
 gem 'grape-swagger-rails'
+gem 'pingpp'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
