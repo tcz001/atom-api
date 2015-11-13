@@ -14,8 +14,8 @@ module API
         Pingpp::Charge.create(
             :order_no => @lease_order.serial_number,
             :amount => (@lease_order.total_amount*100).to_i,
-            :subject => "#{@lease_order.user.name} is paying #{@lease_order.total_amount}",
-            :body => "#{@lease_order.user.name} is paying #{@lease_order.total_amount}",
+            :subject => "#{@lease_order.user.username} is paying #{@lease_order.total_amount}",
+            :body => "#{@lease_order.user.username} is paying #{@lease_order.total_amount}",
             :channel => 'alipay',
             :currency => 'cny',
             # :client_ip=> "#{env['REMOTE_ADDR']}",
@@ -95,8 +95,9 @@ module API
             @charge = create_charge
             @lease_order.save
             body @charge
-          rescue e
-            error!({ error: 'unexpected error', detail: 'ping++ error' }, 500)
+          rescue Exception => e
+            logger.error e
+            error!({ error: 'unexpected error', detail: 'external payment service error' }, 500)
           end
         end
       end
