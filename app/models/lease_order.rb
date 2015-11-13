@@ -1,4 +1,4 @@
-require 'SecureRandom'
+require 'securerandom'
 class LeaseOrder < ActiveRecord::Base
   belongs_to :user
   has_many :accounts
