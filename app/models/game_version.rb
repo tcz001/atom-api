@@ -1,6 +1,5 @@
 class GameVersion < ActiveRecord::Base
   belongs_to :game
-  #TODO: 这里的i18n只是个例子，以后需要提供配置文件来加载
   @@i18n = {
       language: {
           0 => '英文版',

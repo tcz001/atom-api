@@ -6,6 +6,7 @@ module API
 
     mount API::Users => '/users'
     mount API::Games => '/games'
+    mount API::LeaseOrders => '/lease_orders'
 
     add_swagger_documentation(
       base_path: "/api",

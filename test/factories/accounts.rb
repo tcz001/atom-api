@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :account do
     game_version nil
-    user nil
+    lease_order nil
     account { Faker::Internet.safe_email }
     password { Faker::Internet.password }
     status 1

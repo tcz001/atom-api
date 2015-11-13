@@ -5,10 +5,7 @@ module API
     use Rack::JSONP
     helpers Doorkeeper::Grape::Helpers
     helpers do
-      # Find the user that owns the access token
       def current_resource_owner
-        # doorkeeper_token = Doorkeeper::Grape::Helpers::doorkeeper_token
-        p doorkeeper_token
         User.find(doorkeeper_token.resource_owner_id) if doorkeeper_token
       end
     end
