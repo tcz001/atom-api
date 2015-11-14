@@ -2,6 +2,7 @@ require 'securerandom'
 class LeaseOrder < ActiveRecord::Base
   belongs_to :user
   has_many :accounts
+  has_many :charges
   before_create :generate_serial_number
 
   @@i18n = {

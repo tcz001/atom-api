@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151112245255) do
+ActiveRecord::Schema.define(version: 20151113203834) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account",         limit: 255
@@ -28,6 +28,16 @@ ActiveRecord::Schema.define(version: 20151112245255) do
 
   add_index "accounts", ["game_version_id"], name: "index_accounts_on_game_version_id", using: :btree
   add_index "accounts", ["lease_order_id"], name: "index_accounts_on_lease_order_id", using: :btree
+
+  create_table "charges", force: :cascade do |t|
+    t.integer  "lease_order_id", limit: 4
+    t.string   "pingxx_ch_id",   limit: 255
+    t.text     "raw_data",       limit: 65535
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+  end
+
+  add_index "charges", ["lease_order_id"], name: "index_charges_on_lease_order_id", using: :btree
 
   create_table "game_types", force: :cascade do |t|
     t.string   "name",       limit: 255
@@ -151,6 +161,7 @@ ActiveRecord::Schema.define(version: 20151112245255) do
 
   add_foreign_key "accounts", "game_versions"
   add_foreign_key "accounts", "lease_orders"
+  add_foreign_key "charges", "lease_orders"
   add_foreign_key "game_versions", "games"
   add_foreign_key "games", "game_types"
   add_foreign_key "lease_orders", "users"
