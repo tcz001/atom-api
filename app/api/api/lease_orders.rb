@@ -35,8 +35,8 @@ module API
       end
 
       def check_signature!
-        raw_data = request.body
-        signature = headers['x-pingplusplus-signature']
+        raw_data = request.body.read
+        signature = headers['X-Pingplusplus-Signature']
         pub_key_path = "#{Rails.root}/config/rsa_public_key.pem"
         unless verify_signature(raw_data, signature, pub_key_path)
           logger.error 'receive and discard a invalid charge confirm, verify signature error'
