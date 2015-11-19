@@ -18,8 +18,7 @@ module API
             :body => "#{@lease_order.user.username} is paying #{@lease_order.total_amount}",
             :channel => 'alipay',
             :currency => 'cny',
-            # :client_ip=> "#{env['REMOTE_ADDR']}",
-            :client_ip => "127.0.0.1",
+            :client_ip => headers['X-Real-IP'].present? ? headers['X-Real-IP'] : '127.0.0.1',
             :app => {:id => 'app_LWXzX9OO0i58mPqf'}
         )
         throw Exception unless charge.present?
@@ -38,8 +37,7 @@ module API
       def check_signature!
         raw_data = request.body
         signature = headers['x-pingplusplus-signature']
-        # 请从 https://dashboard.pingxx.com 获取「Webhooks 验证 Ping++ 公钥」
-        pub_key_path = Rails.root + '/rsa_public_key.pem'
+        pub_key_path = "#{Rails.root}/config/rsa_public_key.pem"
         unless verify_signature(raw_data, signature, pub_key_path)
           logger.error 'receive and discard a invalid charge confirm, verify signature error'
           error!({error: 'bad signature', detail: 'signature of this charge confirm is invalid'}, 204)
@@ -121,6 +119,7 @@ module API
             @lease_order.save
             body @charge
           rescue Exception => e
+            logger.error e
             error!({error: 'unexpected error', detail: 'external payment service error'}, 500)
           end
         end
