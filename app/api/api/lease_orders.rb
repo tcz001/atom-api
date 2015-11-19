@@ -30,21 +30,17 @@ module API
         Grape::API.logger
       end
 
+      def verify_signature(raw_data, signature, pub_key_path)
+        rsa_public_key = OpenSSL::PKey.read(File.read(pub_key_path))
+        return rsa_public_key.verify(OpenSSL::Digest::SHA256.new, Base64.decode64(signature), raw_data)
+      end
+
       def check_signature!
-        digest = OpenSSL::Digest::SHA256.new
-        pub_key_string = '''
------BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3oDH975nfRJcDoPf+933
-InFRsyCX95NxvWFbQPBkwSc+0dtsbcee+1MQd3HpHkLsJ9VqmFZGbUPeXXtO/0cm
-khU+h3qrO+it2iGr0gLJIJAoCy9UmCNGCLqeVQ7z8LLfhVhIKtBb6ObMq2XxrN7Q
-HGQJR+CH/Rg8Bq/IUQa3kliQyGJJmDfnhiCzUZdz+KJCOQjk06cib9+W4gzptG5v
-2ocU/XpTazykU+3+rUZLvOlOi5hGrVWY2ogsOe8b+LA+Out7D27J5tSJyCE2Nr/A
-8SxMo2nXMz8Fci08yk3EEKFlMnCcY7wE9B0EcGdXlDBivh9wxqSy5002fGehao+g
-CwIDAQAB
------END PUBLIC KEY-----
-        '''
-        pub_key = OpenSSL::PKey::RSA.new(pub_key_string)
-        unless pub_key.verify(digest, Base64.decode(headers['x-pingplusplus-signature']), params)
+        raw_data = request.body
+        signature = headers['x-pingplusplus-signature']
+        # 请从 https://dashboard.pingxx.com 获取「Webhooks 验证 Ping++ 公钥」
+        pub_key_path = Rails.root + '/rsa_public_key.pem'
+        unless verify_signature(raw_data, signature, pub_key_path)
           logger.error 'receive and discard a invalid charge confirm, verify signature error'
           error!({error: 'bad signature', detail: 'signature of this charge confirm is invalid'}, 204)
         end
@@ -125,7 +121,6 @@ CwIDAQAB
             @lease_order.save
             body @charge
           rescue Exception => e
-            log.error e
             error!({error: 'unexpected error', detail: 'external payment service error'}, 500)
           end
         end
@@ -143,8 +138,8 @@ CwIDAQAB
     end
     post "charge_confirm" do
       check_signature!
-      if params[:type] == 'charge.succeeded'
-        charge = params[:data][:object]
+      if params.type == 'charge.succeeded'
+        charge = params.data.object
         charge_find_by_pingxx_ch_id = Charge.find_by_pingxx_ch_id(charge[:id])
         if charge.object == 'charge' && charge.paid == true && charge_find_by_pingxx_ch_id.present?
           lease_order = charge_find_by_pingxx_ch_id.lease_order
