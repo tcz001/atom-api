@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.2.4'
+gem 'rails', '4.2.5'
 # Use pg as the database for Active Record
 gem 'mysql2'
 # Use SCSS for stylesheets
@@ -46,6 +46,8 @@ gem 'grape-entity'
 gem 'rack-contrib'
 gem 'grape-swagger'
 gem 'grape-swagger-rails'
+
+# pingxx sdk support
 gem 'pingpp'
 
 group :development, :test do
@@ -68,5 +70,11 @@ group :development do
   # pry
   gem 'pry-rails'
   gem 'pry-rescue'
+
+  # deployment tool
+  gem 'capistrano'
+  gem 'capistrano-rails'
+  gem 'capistrano-passenger'
+
 end
 
