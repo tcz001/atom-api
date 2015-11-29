@@ -1,5 +1,7 @@
 module API
   class Games < Grape::API
+    formatter :json, API::Formatter.normal
+    error_formatter :json, API::Formatter.error
     helpers SharedParams
 
     desc 'gets the Games list'

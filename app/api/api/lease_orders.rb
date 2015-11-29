@@ -1,5 +1,7 @@
 module API
   class LeaseOrders < Grape::API
+    formatter :json, API::Formatter.normal
+    error_formatter :json, API::Formatter.error
     helpers do
       def create_charge
         Pingpp.api_key = Rails.application.secrets.pingxx_api_key
