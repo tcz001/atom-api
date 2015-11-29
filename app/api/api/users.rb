@@ -1,21 +1,16 @@
-require 'doorkeeper/grape/helpers'
-
 module API
   class Users < Grape::API
-    use Rack::JSONP
-    helpers Doorkeeper::Grape::Helpers
-    helpers do
-      def current_resource_owner
-        User.find(doorkeeper_token.resource_owner_id) if doorkeeper_token
-      end
+    helpers SharedParams
+
+    desc 'gets the Users list'
+    params do
+      use :pagination
+    end
+    get "list" do
+      present User.page(params[:page]).per(params[:per_page]), with: API::Entities::User
     end
 
-    desc 'gets the Users'
-    get "all" do
-      present User.all, with: API::Entities::User
-    end
-
-    desc 'return my user info' do
+    desc 'return my User info' do
       headers Authorization: {
                   description: 'Check Resource Owner Authorization: \'Bearer token\'',
                   required: true

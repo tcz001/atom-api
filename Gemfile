@@ -46,6 +46,7 @@ gem 'grape-entity'
 gem 'rack-contrib'
 gem 'grape-swagger'
 gem 'grape-swagger-rails'
+gem 'grape-kaminari'
 
 # pingxx sdk support
 gem 'pingpp'

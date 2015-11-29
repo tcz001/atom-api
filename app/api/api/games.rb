@@ -1,10 +1,13 @@
 module API
   class Games < Grape::API
-    use Rack::JSONP
+    helpers SharedParams
 
-    desc 'gets the Games'
-    get "all" do
-      present Game.all, with: API::Entities::Game
+    desc 'gets the Games list'
+    params do
+      use :pagination
+    end
+    get "list" do
+      present Game.page(params[:page]).per(params[:per_page]), with: API::Entities::Game
     end
 
     desc 'return a Game info'

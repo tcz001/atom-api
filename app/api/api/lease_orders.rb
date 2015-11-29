@@ -1,14 +1,6 @@
-require 'doorkeeper/grape/helpers'
-
 module API
   class LeaseOrders < Grape::API
-    use Rack::JSONP
-    helpers Doorkeeper::Grape::Helpers
     helpers do
-      def current_resource_owner
-        User.find(doorkeeper_token.resource_owner_id) if doorkeeper_token
-      end
-
       def create_charge
         Pingpp.api_key = Rails.application.secrets.pingxx_api_key
         charge = Pingpp::Charge.create(
@@ -25,10 +17,6 @@ module API
         charge
       end
 
-      def logger
-        Grape::API.logger
-      end
-
       def verify_signature(raw_data, signature, pub_key_path)
         rsa_public_key = OpenSSL::PKey.read(File.read(pub_key_path))
         return rsa_public_key.verify(OpenSSL::Digest::SHA256.new, Base64.decode64(signature), raw_data)
@@ -43,15 +31,14 @@ module API
           error!({error: 'bad signature', detail: 'signature of this charge confirm is invalid'}, 204)
         end
       end
-
     end
 
-    desc 'gets the LeaseOrders'
+    desc 'gets all the LeaseOrders'
     get "all" do
       present LeaseOrder.all, with: API::Entities::LeaseOrder
     end
 
-    desc 'return a LeaseOrders info' do
+    desc 'return a LeaseOrder info' do
       headers Authorization: {
                   description: 'Check Resource Owner Authorization: \'Bearer token\'',
                   required: true
@@ -154,7 +141,6 @@ module API
           error!({error: 'unexpected error', detail: 'external payment service error'}, 204)
         end
       end
-
     end
 
   end
