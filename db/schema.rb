@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151113203834) do
+ActiveRecord::Schema.define(version: 20151206031600) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account",         limit: 255
@@ -73,6 +73,20 @@ ActiveRecord::Schema.define(version: 20151113203834) do
   end
 
   add_index "games", ["game_type_id"], name: "index_games_on_game_type_id", using: :btree
+
+  create_table "images", force: :cascade do |t|
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.string   "file_file_name",    limit: 255
+    t.string   "file_content_type", limit: 255
+    t.integer  "file_file_size",    limit: 4
+    t.datetime "file_updated_at"
+    t.string   "name",              limit: 255
+    t.integer  "imageable_id",      limit: 4
+    t.string   "imageable_type",    limit: 255
+  end
+
+  add_index "images", ["imageable_id"], name: "index_images_on_imageable_id", using: :btree
 
   create_table "lease_orders", force: :cascade do |t|
     t.string   "serial_number", limit: 255

@@ -41,7 +41,7 @@ gem 'doorkeeper'
 gem 'devise'
 
 # Swagger UI as Rails Engine for grape-swagger gem.
-gem 'grape'
+gem 'grape', :git => "https://github.com/ruby-grape/grape.git"
 gem 'grape-entity'
 gem 'rack-contrib'
 gem 'grape-swagger'
@@ -50,6 +50,11 @@ gem 'grape-kaminari'
 
 # pingxx sdk support
 gem 'pingpp'
+
+# qiniu as image solution
+gem 'qiniu'
+gem 'paperclip'
+gem 'paperclip-qiniu'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

@@ -1,8 +1,7 @@
 module API
   module Entities
-    class User < Grape::Entity
+    class UserBrief < Grape::Entity
       expose :username
-      expose :email
       expose :avatar
     end
   end
