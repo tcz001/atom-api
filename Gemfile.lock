@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/ruby-grape/grape.git
-  revision: b190011d355bc69822b607ab19dea8e934818382
+  revision: a81967ab02c4678bc55c81af63c9995b91bb3b08
   specs:
-    grape (0.13.1)
+    grape (0.14.1)
       activesupport
       builder
       hashie (>= 2.1.0)
@@ -120,9 +120,9 @@ GEM
     grape-kaminari (0.1.8)
       grape
       kaminari
-    grape-swagger (0.10.2)
+    grape-swagger (0.10.4)
       grape (>= 0.8.0)
-      grape-entity
+      grape-entity (< 0.5.0)
     grape-swagger-rails (0.1.0)
       grape-swagger (>= 0.7.2)
       railties (>= 3.2.12)
