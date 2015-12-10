@@ -11,22 +11,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151206031600) do
+ActiveRecord::Schema.define(version: 20151210215803) do
 
   create_table "accounts", force: :cascade do |t|
-    t.string   "account",         limit: 255
-    t.string   "password",        limit: 255
-    t.integer  "status",          limit: 4
+    t.string   "account",        limit: 255
+    t.string   "password",       limit: 255
+    t.integer  "status",         limit: 4
     t.datetime "start_at"
     t.datetime "expire_at"
-    t.integer  "game_version_id", limit: 4
-    t.integer  "lease_order_id",  limit: 4
-    t.integer  "is_valid",        limit: 4
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.integer  "game_id",        limit: 4
+    t.integer  "lease_order_id", limit: 4
+    t.integer  "is_valid",       limit: 4
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
   end
 
-  add_index "accounts", ["game_version_id"], name: "index_accounts_on_game_version_id", using: :btree
+  add_index "accounts", ["game_id"], name: "index_accounts_on_game_id", using: :btree
   add_index "accounts", ["lease_order_id"], name: "index_accounts_on_lease_order_id", using: :btree
 
   create_table "charges", force: :cascade do |t|
@@ -47,32 +47,31 @@ ActiveRecord::Schema.define(version: 20151206031600) do
   end
 
   create_table "game_versions", force: :cascade do |t|
-    t.integer  "version",         limit: 4
-    t.integer  "language",        limit: 4
-    t.decimal  "original_price",            precision: 9, scale: 2
-    t.decimal  "reference_price",           precision: 9, scale: 2
-    t.integer  "game_id",         limit: 4
-    t.integer  "is_valid",        limit: 4
-    t.datetime "created_at",                                        null: false
-    t.datetime "updated_at",                                        null: false
+    t.string   "version",    limit: 255
+    t.string   "language",   limit: 255
+    t.integer  "is_valid",   limit: 4
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
   end
 
-  add_index "game_versions", ["game_id"], name: "index_game_versions_on_game_id", using: :btree
-
   create_table "games", force: :cascade do |t|
-    t.string   "name",           limit: 255
-    t.string   "nick_name",      limit: 255
-    t.string   "developer",      limit: 255
-    t.integer  "min_player_num", limit: 4
-    t.integer  "max_player_num", limit: 4
+    t.string   "name",            limit: 255
+    t.string   "nick_name",       limit: 255
+    t.string   "developer",       limit: 255
+    t.integer  "min_player_num",  limit: 4
+    t.integer  "max_player_num",  limit: 4
     t.boolean  "is_hot"
-    t.integer  "game_type_id",   limit: 4
-    t.integer  "is_valid",       limit: 4
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.decimal  "original_price",              precision: 9, scale: 2
+    t.decimal  "reference_price",             precision: 9, scale: 2
+    t.integer  "game_version_id", limit: 4
+    t.integer  "game_type_id",    limit: 4
+    t.integer  "is_valid",        limit: 4
+    t.datetime "created_at",                                          null: false
+    t.datetime "updated_at",                                          null: false
   end
 
   add_index "games", ["game_type_id"], name: "index_games_on_game_type_id", using: :btree
+  add_index "games", ["game_version_id"], name: "index_games_on_game_version_id", using: :btree
 
   create_table "images", force: :cascade do |t|
     t.datetime "created_at",                    null: false
@@ -154,30 +153,33 @@ ActiveRecord::Schema.define(version: 20151206031600) do
   add_index "third_parties", ["user_id"], name: "index_third_parties_on_user_id", using: :btree
 
   create_table "users", force: :cascade do |t|
-    t.string   "email",                  limit: 255, default: ""
-    t.string   "encrypted_password",     limit: 255, default: "", null: false
+    t.string   "email",                  limit: 255,   default: ""
+    t.string   "encrypted_password",     limit: 255,   default: "", null: false
     t.string   "reset_password_token",   limit: 255
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          limit: 4,   default: 0,  null: false
+    t.integer  "sign_in_count",          limit: 4,     default: 0,  null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.integer  "current_sign_in_ip",     limit: 4
     t.integer  "last_sign_in_ip",        limit: 4
-    t.datetime "created_at",                                      null: false
-    t.datetime "updated_at",                                      null: false
+    t.datetime "created_at",                                        null: false
+    t.datetime "updated_at",                                        null: false
     t.string   "username",               limit: 255
+    t.string   "name",                   limit: 255
+    t.string   "status",                 limit: 255
+    t.text     "note",                   limit: 65535
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   add_index "users", ["username"], name: "index_users_on_username", unique: true, using: :btree
 
-  add_foreign_key "accounts", "game_versions"
+  add_foreign_key "accounts", "games"
   add_foreign_key "accounts", "lease_orders"
   add_foreign_key "charges", "lease_orders"
-  add_foreign_key "game_versions", "games"
   add_foreign_key "games", "game_types"
+  add_foreign_key "games", "game_versions"
   add_foreign_key "lease_orders", "users"
   add_foreign_key "third_parties", "users"
 end

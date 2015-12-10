@@ -5,8 +5,11 @@ FactoryGirl.define do
     nick_name { Faker::App.name }
     developer { Faker::App.author }
     game_type nil
+    game_version nil
     min_player_num 1
     max_player_num { [1,2,3,4].sample }
+    original_price { Faker::Number.decimal(2) }
+    reference_price { Faker::Number.decimal(2) }
   end
 
 end

@@ -9,7 +9,12 @@ module API
       expose :developer
       expose :min_player_num
       expose :max_player_num
-      expose :game_versions, as: :versions, using: API::Entities::GameVersion
+      expose :original_price
+      expose :reference_price
+      expose :cover
+      expose :cover_small
+      expose :display_language, as: :language
+      expose :display_version, as: :version
     end
   end
 end

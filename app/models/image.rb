@@ -3,4 +3,7 @@ class Image < ActiveRecord::Base
   has_attached_file :file, :path => ':class/:attachment/:id/:basename.:extension'
   validates :file, :attachment_presence => true
   validates_attachment_content_type :file, :content_type => /\Aimage\/.*\Z/
+  def image_file_url
+    self.file.url
+  end
 end

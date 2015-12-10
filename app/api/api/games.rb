@@ -19,8 +19,8 @@ module API
     end
     get "info" do
       if (conditions = declared(params, include_missing: false)).present?
-        @game = Game.find_by(conditions)
-        present @game, with: API::Entities::Game
+        game = Game.find_by(conditions)
+        present game, with: API::Entities::Game
       end
     end
 

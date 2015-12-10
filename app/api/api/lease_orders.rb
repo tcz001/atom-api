@@ -64,19 +64,19 @@ module API
               }
     end
     params do
-      requires :game_version_ids, type: Array[Integer], desc: 'GameVersions in a LeaseOrder.', documentation: {example: '{"game_version_ids":[1,2,3]}'}
+      requires :game_ids, type: Array[Integer], desc: 'GameVersions in a LeaseOrder.', documentation: {example: '{"game_ids":[1,2,3]}'}
     end
     post "create" do
       doorkeeper_authorize!
       if (declared(params, include_missing: false)).present? && current_resource_owner.present?
-        game_versions = GameVersion.where(id: params[:game_version_ids])
-        if game_versions.present?
+        game= Game.where(id: params[:game_ids])
+        if game.present?
           @lease_order = current_resource_owner.lease_orders.build
           @lease_order.status = 1
-          @lease_order.total_amount = game_versions.pluck(:reference_price).reduce(:+)
+          @lease_order.total_amount = game.pluck(:reference_price).reduce(:+)
           @lease_order.save
-          game_versions.each { |gv|
-            @account = @lease_order.accounts.build({game_version: gv})
+          game.each { |gv|
+            @account = @lease_order.accounts.build({game: gv})
             @account.save
           }
           present @lease_order, with: API::Entities::LeaseOrder

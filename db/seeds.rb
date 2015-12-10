@@ -14,11 +14,10 @@ admin = FactoryGirl.create(:user,{username:'admin',password:'12345678'})
 test_user = FactoryGirl.create(:user,{username:'18611000000',password:'12345678'})
 FactoryGirl.create_list(:user, 25)
 game_types = FactoryGirl.create_list(:game_type, 4)
-game_types.each{|gt|FactoryGirl.create_list(:game, 10, game_type: gt)}
+FactoryGirl.create_list(:game_version, 3)
+game_types.each{|gt|FactoryGirl.create_list(:game, 10, game_type: gt, game_version:GameVersion.all.sample)}
 games = Game.all
-games.each{|g|FactoryGirl.create_list(:game_version, 3, game: g)}
-game_versions = GameVersion.all
-game_versions.each{|gv|
+games.each{|g|
   lo = FactoryGirl.create(:lease_order, {user: test_user})
-  FactoryGirl.create(:account,{game_version:gv,lease_order:lo})
+  FactoryGirl.create(:account,{game:g,lease_order:lo})
 }
