@@ -37,7 +37,7 @@ module API
 
     desc 'gets all the LeaseOrders'
     get "all" do
-      present LeaseOrder.all, with: API::Entities::LeaseOrder
+      present LeaseOrder.all, with: API::Entities::LeaseOrderBrief
     end
 
     desc 'return a LeaseOrder info' do
