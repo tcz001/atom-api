@@ -3,6 +3,7 @@ lock '3.4.0'
 
 set :application, 'atom-api'
 set :user, 'atom-api'
+set :ssh_options, { :forward_agent => true }
 set :repo_url, 'git@bitbucket.org:e_cool/atom-api.git'
 
 # Default branch is :master
