@@ -2,6 +2,7 @@
 lock '3.4.0'
 
 set :application, 'atom-api'
+set :user, 'atom-api'
 set :repo_url, 'git@bitbucket.org:e_cool/atom-api.git'
 
 # Default branch is :master
@@ -33,7 +34,6 @@ set :linked_dirs, fetch(:linked_dirs, []).push('log', 'tmp/pids', 'tmp/cache', '
 
 # Default value for keep_releases is 5
 # set :keep_releases, 5
-set :ssh_options, { :forward_agent => true }
 
 namespace :deploy do
 

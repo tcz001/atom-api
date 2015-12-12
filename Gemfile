@@ -79,8 +79,13 @@ group :development do
 
   # deployment tool
   gem 'capistrano'
+  gem 'capistrano-rvm'
   gem 'capistrano-rails'
+  gem 'capistrano-bundler'
   gem 'capistrano-passenger'
+
+  # hide
+  gem 'highline'
 
 end
 
