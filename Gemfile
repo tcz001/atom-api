@@ -60,6 +60,12 @@ gem 'paperclip-qiniu'
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
+
+  # db cleaner Factory_girl and Faker
+  gem 'database_cleaner'
+  gem 'factory_girl_rails'
+  gem 'faker'
+
 end
 
 group :development do
@@ -68,11 +74,6 @@ group :development do
 
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
-
-  # db cleaner Factory_girl and Faker
-  gem 'database_cleaner'
-  gem 'factory_girl_rails'
-  gem 'faker'
 
   # pry
   gem 'pry-rails'
