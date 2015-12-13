@@ -57,7 +57,7 @@ gem 'qiniu'
 gem 'paperclip'
 gem 'paperclip-qiniu'
 
-group :development, :test do
+group :development, :test, :staging do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
 
