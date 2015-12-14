@@ -119,7 +119,7 @@ module API
             charge = @lease_order.charges.build(pingxx_ch_id: @charge.id, raw_data: @charge.to_json)
             charge.save
             @lease_order.save
-            body @charge
+            body @charge.to_json
           rescue Exception => e
             logger.error e
             error!({error: 'unexpected error', detail: 'external payment service error'}, 500)
