@@ -40,6 +40,17 @@ module API
       present LeaseOrder.all, with: API::Entities::LeaseOrderBrief
     end
 
+    desc 'gets all the LeaseOrders of a user' do
+      headers Authorization: {
+                  description: 'Check Resource Owner Authorization: \'Bearer token\'',
+                  required: true
+              }
+    end
+    get "my" do
+      doorkeeper_authorize!
+      present current_resource_owner.lease_orders, with: API::Entities::LeaseOrderBrief
+    end
+
     desc 'return a LeaseOrder info' do
       headers Authorization: {
                   description: 'Check Resource Owner Authorization: \'Bearer token\'',
@@ -72,7 +83,7 @@ module API
         game= Game.where(id: params[:game_ids])
         if game.present?
           @lease_order = current_resource_owner.lease_orders.build
-          @lease_order.status = 1
+          @lease_order.status = 0
           @lease_order.total_amount = game.pluck(:reference_price).reduce(:+)
           @lease_order.save
           game.each { |gv|
@@ -111,6 +122,8 @@ module API
             logger.error e
             error!({error: 'unexpected error', detail: 'external payment service error'}, 500)
           end
+        else
+          error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 500)
         end
       end
     end
