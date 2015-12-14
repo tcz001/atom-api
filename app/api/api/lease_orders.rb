@@ -91,6 +91,8 @@ module API
             @account.save
           }
           present @lease_order, with: API::Entities::LeaseOrder
+        else
+          error!({error: 'wrong game_ids', detail: 'the game_ids of lease order is not found'}, 204)
         end
       end
     end
@@ -123,7 +125,7 @@ module API
             error!({error: 'unexpected error', detail: 'external payment service error'}, 500)
           end
         else
-          error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 500)
+          error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 205)
         end
       end
     end
@@ -145,6 +147,10 @@ module API
         if charge.object == 'charge' && charge.paid == true && charge_find_by_pingxx_ch_id.present?
           lease_order = charge_find_by_pingxx_ch_id.lease_order
           if lease_order.status == 2
+            lease_order.accounts.each{|a|
+              a.start_at = DateTime.now
+              a.save
+            }
             lease_order.status = 3
             lease_order.save
           else
