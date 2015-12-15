@@ -6,4 +6,4 @@ Paperclip::Attachment.default_options[:qiniu_credentials] = {
 Paperclip::Attachment.default_options[:bucket] = 'ecoolhub'
 Paperclip::Attachment.default_options[:use_timestamp] = false
 Paperclip::Attachment.default_options[:qiniu_host] =
-  'http://7xorme.com1.z0.glb.clouddn.com'
+  'http://qiniu.ecoolhub.com'
