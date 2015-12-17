@@ -26,9 +26,9 @@ class Game < ActiveRecord::Base
     @@i18n[:version][self.game_version.version]
   end
   def cover
-    ApplicationController.helpers.qiniu_image_path(images.last.file.url, :thumbnail => '50x50', :quality => 80) if self.images.present?
+    ApplicationController.helpers.qiniu_image_path(images.last.file.url, :thumbnail => '150x150', :quality => 80) if self.images.present?
   end
   def cover_small
-    ApplicationController.helpers.qiniu_image_path(images.last.file.url, :thumbnail => '20x20', :quality => 50) if self.images.present?
+    ApplicationController.helpers.qiniu_image_path(images.last.file.url, :thumbnail => '80x80', :quality => 50) if self.images.present?
   end
 end
