@@ -9,7 +9,7 @@ module API
     end
     post "send_sms_code" do
       begin
-        response = RestClient.get 'http://localhost:8080/external/sms/sendCode?mobile='+params[:mobile]
+        response = RestClient.get 'http://localhost:8091/external/sms/sendCode?mobile='+params[:mobile]
         json = JSON.parse(response)
         if json['status'] == 'error'
           error!({error: json['content'], detail: json['content']}, 203)
@@ -36,7 +36,7 @@ module API
       begin
         user = User.new(username: params[:mobile]).persisted?
         if user
-          response = RestClient.get 'http://localhost:8080/external/sms/checkCode?code='+params[:code]+'&mobile='+params[:mobile]
+          response = RestClient.get 'http://localhost:8091/external/sms/checkCode?code='+params[:code]+'&mobile='+params[:mobile]
           json = JSON.parse(response)
           if json['status'] == 'error'
             error!({error: json['content'], detail: json['content']}, 203)
