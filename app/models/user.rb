@@ -10,4 +10,8 @@ class User < ActiveRecord::Base
   def avatar
     ApplicationController.helpers.qiniu_image_path(images.last.file.url, :thumbnail => '50x50', :quality => 80) if self.images.present?
   end
+
+  def persisted?
+    User.find_by_username(self.username)
+  end
 end
