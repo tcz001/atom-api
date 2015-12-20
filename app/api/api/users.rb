@@ -48,7 +48,10 @@ module API
           if verify_code(params[:code], params[:mobile])
             error!({error: json['content'], detail: json['content']}, 203)
           else
-            User.create(username: params[:mobile], password: params[:password], status: 'active')
+            user = User.create(username: params[:mobile], password: params[:password], status: 'active')
+            access_token = Doorkeeper::AccessToken.create!(resource_owner_id: user.id, scopes: :public, expires_in: 3.days, use_refresh_token: true)
+            json = {token_info: access_token, access_token: access_token.token, refresh_token: access_token.refresh_token}.as_json
+            body json
           end
         end
       rescue Exception => e
