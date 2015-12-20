@@ -4,6 +4,14 @@ module API
     error_formatter :json, API::Formatter.error
     helpers SharedParams
 
+    helpers do
+      def verify_code(code, mobile)
+        response = RestClient.get 'http://localhost:8091/external/sms/checkCode?code='+code+'&mobile='+mobile
+        json = JSON.parse(response)
+        return json['status'] == 'error'
+      end
+    end
+
     params do
       requires :mobile, type: String, desc: 'mobile number.'
     end
@@ -14,37 +22,7 @@ module API
         if json['status'] == 'error'
           error!({error: json['content'], detail: json['content']}, 203)
         else
-          user = User.new(username: params[:mobile]).persisted?
-          if user
-            user.status = 'confirming'
-          else
-            User.create(username: params[:mobile], status: 'confirming')
-          end
           body json['content']
-        end
-      rescue Exception => e
-        logger.error e
-        error!({error: 'unexpected error', detail: 'external sms service error'}, 500)
-      end
-    end
-
-    params do
-      requires :mobile, type: String, desc: 'mobile number.'
-      requires :code, type: String, desc: 'code.'
-    end
-    post "check_sms_code" do
-      begin
-        user = User.new(username: params[:mobile]).persisted?
-        if user
-          response = RestClient.get 'http://localhost:8091/external/sms/checkCode?code='+params[:code]+'&mobile='+params[:mobile]
-          json = JSON.parse(response)
-          if json['status'] == 'error'
-            error!({error: json['content'], detail: json['content']}, 203)
-          else
-            user.status = 'confirmed'
-          end
-        else
-          error!({error: 'user was not created, please call send_sms_code and check_sms_code first', detail: 'check sms code error'}, 500)
         end
       rescue Exception => e
         logger.error e
@@ -55,32 +33,27 @@ module API
     params do
       requires :mobile, type: String, desc: 'username can only be mobile number now.'
       requires :password, type: String, desc: 'password.'
+      requires :code, type: String, desc: 'code.'
     end
     post "sign_up" do
       begin
         user = User.new(username: params[:mobile]).persisted?
         if user
-          case user.status
-            when 'confirmed'
-              user.password = params[:password]
-              user.status = 'active'
-              user.save
-              access_token = Doorkeeper::AccessToken.create!(resource_owner_id: user.id, scopes: :public, expires_in: 3.days, use_refresh_token: true)
-              json = {token_info: access_token, access_token: access_token.token, refresh_token: access_token.refresh_token}.as_json
-              body json
-            when 'confirming'
-              error!({error: 'wait for confirming', detail: 'sign up error'}, 203)
-            when 'active'
-              error!({error: 'username already taken', detail: 'sign up error'}, 203)
-            else
-              error!({error: 'unexpected user status error', detail: 'sign up error'}, 203)
+          if user.status == 'active'
+            error!({error: 'username already taken', detail: 'sign up error'}, 203)
+          else
+            error!({error: 'unexpected user status: '+user.status, detail: 'sign up error'}, 203)
           end
         else
-          error!({error: 'user was not created, please call send_sms_code and check_sms_code first', detail: 'sign up error'}, 500)
+          if verify_code(params[:code], params[:mobile])
+            error!({error: json['content'], detail: json['content']}, 203)
+          else
+            User.create(username: params[:mobile], password: params[:password], status: 'active')
+          end
         end
       rescue Exception => e
         logger.error e
-        error!({error: 'unexpected error', detail: 'sign up error'}, 500)
+        error!({error: 'unexpected error', detail: 'sign up error or external sms service error'}, 500)
       end
     end
 
