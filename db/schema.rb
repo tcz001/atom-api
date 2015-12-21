@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151219214901) do
+ActiveRecord::Schema.define(version: 20151221051134) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account",        limit: 255
@@ -68,13 +68,16 @@ ActiveRecord::Schema.define(version: 20151219214901) do
     t.integer  "min_player_num",  limit: 4
     t.integer  "max_player_num",  limit: 4
     t.boolean  "is_hot"
-    t.decimal  "original_price",              precision: 9, scale: 2
-    t.decimal  "reference_price",             precision: 9, scale: 2
+    t.decimal  "original_price",                precision: 9, scale: 2
+    t.decimal  "reference_price",               precision: 9, scale: 2
     t.integer  "game_version_id", limit: 4
     t.integer  "game_type_id",    limit: 4
     t.integer  "is_valid",        limit: 4
-    t.datetime "created_at",                                          null: false
-    t.datetime "updated_at",                                          null: false
+    t.datetime "created_at",                                            null: false
+    t.datetime "updated_at",                                            null: false
+    t.text     "detail",          limit: 65535
+    t.datetime "release_at"
+    t.string   "language",        limit: 255
   end
 
   add_index "games", ["game_type_id"], name: "index_games_on_game_type_id", using: :btree
@@ -176,6 +179,8 @@ ActiveRecord::Schema.define(version: 20151219214901) do
     t.string   "name",                   limit: 255
     t.string   "status",                 limit: 255
     t.text     "note",                   limit: 65535
+    t.text     "detail",                 limit: 65535
+    t.datetime "release_at"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree

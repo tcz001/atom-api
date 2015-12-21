@@ -13,8 +13,9 @@ module API
       expose :reference_price
       expose :cover
       expose :cover_small
-      expose :display_language, as: :language
-      expose :display_version, as: :version
+      expose :language
+      expose :release_at
+      expose :detail
     end
   end
 end
