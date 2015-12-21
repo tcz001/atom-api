@@ -3,7 +3,7 @@ class Game < ActiveRecord::Base
   belongs_to :game_type
   has_many :images, as: :imageable
   def display_game_type
-    self.game_type.name
+    self.game_type.name if self.game_type.present?
   end
   @@i18n = {
       language: {
@@ -20,10 +20,10 @@ class Game < ActiveRecord::Base
       },
   }
   def display_language
-    @@i18n[:language][self.game_version.language]
+    @@i18n[:language][self.game_version.language] if self.game_version.present?
   end
   def display_version
-    @@i18n[:version][self.game_version.version]
+    @@i18n[:version][self.game_version.version] if self.game_version.present?
   end
   def cover
     ApplicationController.helpers.qiniu_image_path(images.last.file.url, :thumbnail => '150x150', :quality => 80) if self.images.present?
