@@ -64,7 +64,12 @@ module API
       doorkeeper_authorize!
       if (declared(params, include_missing: false)).present? && current_resource_owner.present?
         @lease_order = current_resource_owner.lease_orders.find_by_serial_number(params[:serial_number])
-        present @lease_order, with: API::Entities::LeaseOrder
+        if @lease_order.status == 3
+          present @lease_order, with: API::Entities::LeaseOrder
+        end
+        if @lease_order.status != 3
+          present @lease_order, with: API::Entities::LeaseOrderBrief
+        end
       end
     end
 
