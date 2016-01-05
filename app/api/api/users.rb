@@ -86,10 +86,22 @@ module API
     end
 
     params do
-      requires :mobile, type: String, desc: 'mobile number.'
+      requires :mobile, type: String, desc: 'username can only be mobile number now.'
+      requires :password, type: String, desc: 'password.'
+      requires :code, type: String, desc: 'code.'
     end
     post "forget_password" do
-      error!({error: 'forget password is not supported yet', detail: 'forget password is not supported'}, 500)
+      if verify_code(params[:code], params[:mobile])
+        error!({error: json['content'], detail: json['content']}, 203)
+      else
+        user = User.find_by_username(params[:mobile])
+        if user.present?
+          user.password = params[:password]
+          user.save
+        else
+          error!({error: 'unexpected error', detail: 'user not found error'}, 500)
+        end
+      end
     end
 
     desc 'gets the Users list'
