@@ -4,6 +4,7 @@ class LeaseOrder < ActiveRecord::Base
   has_many :accounts
   has_many :charges
   before_create :generate_serial_number
+  default_scope -> { order('updated_at') }
 
   @@i18n = {
       status: {
