@@ -8,7 +8,7 @@ class User < ActiveRecord::Base
   has_many :images, as: :imageable
 
   def avatar
-    ApplicationController.helpers.qiniu_image_path(images.last.file.url, :thumbnail => '50x50', :quality => 80) if self.images.present?
+    ApplicationController.helpers.qiniu_image_path(images.last.file.url, :thumbnail => '250x250', :quality => 80) if self.images.present?
   end
 
   def persisted?
