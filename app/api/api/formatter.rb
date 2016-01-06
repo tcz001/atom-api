@@ -8,7 +8,7 @@ module API
 
     def self.error
       lambda { |message, backtrace, options, env|
-        {:meta => {status: :error, msg: message[:error]}}.to_json
+        {:meta => {status: :error, msg: "#{message[:error]}:#{message[:detail]}"}}.to_json
       }
     end
   end
