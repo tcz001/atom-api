@@ -9,7 +9,7 @@ module API
       use :pagination
     end
     get "list" do
-      present Game.page(params[:page]).per(params[:per_page]), with: API::Entities::Game
+      present Game.order(updated_at: :desc).page(params[:page]).per(params[:per_page]), with: API::Entities::Game
     end
 
     desc 'return a Game info'

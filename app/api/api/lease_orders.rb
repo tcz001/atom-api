@@ -35,11 +35,6 @@ module API
       end
     end
 
-    desc 'gets all the LeaseOrders'
-    get "all" do
-      present LeaseOrder.all, with: API::Entities::LeaseOrderBrief
-    end
-
     desc 'gets all the LeaseOrders of a user' do
       headers Authorization: {
                   description: 'Check Resource Owner Authorization: \'Bearer token\'',
@@ -48,7 +43,7 @@ module API
     end
     get "my" do
       doorkeeper_authorize!
-      present current_resource_owner.lease_orders, with: API::Entities::LeaseOrderBrief
+      present current_resource_owner.lease_orders.order(updated_at: :desc), with: API::Entities::LeaseOrderBrief
     end
 
     desc 'return a LeaseOrder info' do
