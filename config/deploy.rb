@@ -7,7 +7,11 @@ set :ssh_options, { :forward_agent => true }
 set :repo_url, 'git@bitbucket.org:e_cool/atom-api.git'
 
 # Default branch is :master
-ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
+if ENV['branch']
+  set :branch, ENV['branch']
+else
+  ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
+end
 
 # Default deploy_to directory is /var/www/my_app_name
 # set :deploy_to, '/var/www/my_app_name'
