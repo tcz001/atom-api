@@ -5,6 +5,8 @@ module API
       expose :status
       expose :total_amount
       expose :accounts, using: API::Entities::AccountBrief
+      expose :created_at
+      expose :updated_at
     end
   end
 end
