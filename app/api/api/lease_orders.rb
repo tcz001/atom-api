@@ -68,6 +68,29 @@ module API
       end
     end
 
+    desc 'cancel a LeaseOrder' do
+      headers Authorization: {
+                  description: 'Check Resource Owner Authorization: \'Bearer token\'',
+                  required: true
+              }
+    end
+    params do
+      requires :serial_number, type: String, desc: 'LeaseOrder serial_number.'
+    end
+    post "cancel" do
+      doorkeeper_authorize!
+      if (declared(params, include_missing: false)).present? && current_resource_owner.present?
+        @lease_order = current_resource_owner.lease_orders.find_by_serial_number(params[:serial_number])
+        if @lease_order.status == 0
+          @lease_order.status = 6
+          @lease_order.save
+          present @lease_order, with: API::Entities::LeaseOrderBrief
+        else
+          error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 205)
+        end
+      end
+    end
+
     desc 'create a LeaseOrder' do
       headers Authorization: {
                   description: 'Check Resource Owner Authorization: \'Bearer token\'',
