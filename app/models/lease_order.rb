@@ -26,7 +26,7 @@ class LeaseOrder < ActiveRecord::Base
       },
   }
 
-  def limit_by_grade(grade)
+  def self.limit_by_grade(grade)
     @@limit[:grade][grade]
   end
 
