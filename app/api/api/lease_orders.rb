@@ -102,7 +102,9 @@ module API
     end
     post "create" do
       doorkeeper_authorize!
-      if (declared(params, include_missing: false)).present? && current_resource_owner.present?
+      if current_resource_owner.grade.nil? || current_resource_owner.lease_orders.select { |o| [0, 2, 3].include? o.status }.length >= current_resource_owner.grade
+        error!({error: 'order number limited', detail: 'Sorry, you cannot create any new orders.'}, 204)
+      elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
         game= Game.where(id: params[:game_ids])
         if game.present?
           @lease_order = current_resource_owner.lease_orders.build
@@ -170,7 +172,7 @@ module API
         if charge.object == 'charge' && charge.paid == true && charge_find_by_pingxx_ch_id.present?
           lease_order = charge_find_by_pingxx_ch_id.lease_order
           if lease_order.status == 2
-            lease_order.accounts.each{|a|
+            lease_order.accounts.each { |a|
               a.start_at = 1.day.from_now.beginning_of_day
               a.expire_at = a.start_at + 7.days
               a.save
