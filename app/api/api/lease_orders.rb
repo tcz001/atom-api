@@ -102,7 +102,7 @@ module API
     end
     post "create" do
       doorkeeper_authorize!
-      if current_resource_owner.grade.nil? || current_resource_owner.lease_orders.select { |o| [0, 2, 3].include? o.status }.length >= (current_resource_owner.grade - 1)
+      if current_resource_owner.grade.nil? || current_resource_owner.lease_orders.select { |o| [0, 2, 3].include? o.status }.length >= LeaseOrder.limit_by_grade(current_resource_owner.grade)
         error!({error: 'order number limited', detail: 'Sorry, you cannot create any new orders.'}, 204)
       elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
         game= Game.where(id: params[:game_ids])

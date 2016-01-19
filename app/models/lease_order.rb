@@ -5,6 +5,15 @@ class LeaseOrder < ActiveRecord::Base
   has_many :charges
   before_create :generate_serial_number
 
+  @@limit = {
+      grade: {
+          1 => 0,
+          2 => 1,
+          3 => 2,
+          4 => 3,
+      },
+  }
+
   @@i18n = {
       status: {
           0 => '待确认',
@@ -16,6 +25,10 @@ class LeaseOrder < ActiveRecord::Base
           6 => '已取消',
       },
   }
+
+  def limit_by_grade(grade)
+    @@limit[:grade][grade]
+  end
 
   def display_status
     @@i18n[:status][self.status]
