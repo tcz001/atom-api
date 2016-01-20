@@ -4,6 +4,8 @@ module API
       expose :username
       expose :email
       expose :status
+      expose :grade
+      expose :zm_credit
       expose :note
       expose :avatar
     end
