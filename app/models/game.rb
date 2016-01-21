@@ -15,7 +15,7 @@ class Game < ActiveRecord::Base
     self.game_type.name if self.game_type.present?
   end
   def display_language
-    self.language.split(',').map { |l| @@i18n[:language][l] }.join(',')
+    self.language.split(',').map { |l| @@i18n[:language][l] }.join(',') if self.language.present?
   end
   def cover
     ApplicationController.helpers.qiniu_image_path(images.last.file.url, :thumbnail => '500x500', :quality => 80) if self.images.present?
