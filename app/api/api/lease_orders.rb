@@ -98,7 +98,7 @@ module API
               }
     end
     params do
-      requires :game_ids, type: Array[Integer], desc: 'GameVersions in a LeaseOrder.', documentation: {example: '{"game_ids":[1,2,3]}'}
+      requires :game_ids, type: Array[Integer], desc: 'GameVersions in a LeaseOrder.', documentation: {example: '{"game_ids":[1]}'}
     end
     post "create" do
       doorkeeper_authorize!
