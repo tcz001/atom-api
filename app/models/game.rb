@@ -10,6 +10,7 @@ class Game < ActiveRecord::Base
           '英' => '英文',
       },
   }
+  scope :published, -> { where(is_valid: true) }
 
   def display_game_type
     self.game_type.name if self.game_type.present?
