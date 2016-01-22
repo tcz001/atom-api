@@ -185,7 +185,7 @@ module API
           end
         else
           logger.error 'receive and discard a invalid charge confirm'
-          error!({error: 'unexpected error', detail: 'external payment service error'}, 204)
+          error!({error: 'unexpected error', detail: 'external payment service error'}, 500)
         end
       end
     end

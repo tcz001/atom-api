@@ -73,9 +73,8 @@ module API
     post "change_password" do
       doorkeeper_authorize!
       begin
-        if current_resource_owner.password == params[:old_password]
-          current_resource_owner.password = params[:new_password]
-          current_resource_owner.save
+        if current_resource_owner.valid_password?(params[:old_password])
+          current_resource_owner.update({password:params[:new_password]})
         else
           error!({error: 'wrong old password', detail: 'old password doesnt match'}, 203)
         end
