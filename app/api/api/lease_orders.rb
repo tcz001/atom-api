@@ -107,7 +107,7 @@ module API
       elsif current_resource_owner.grade.nil? || current_resource_owner.lease_orders.select { |o| [0, 2, 3].include? o.status }.length >= LeaseOrder.limit_by_grade(current_resource_owner.grade)
         error!({error: 'order number limited', detail: 'Sorry, you cannot create any new orders.'}, 203)
       elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
-        game= Game.where(id: params[:game_ids])
+        game= Game.where(id: params[:game_ids], is_valid: true)
         if game.present?
           @lease_order = current_resource_owner.lease_orders.build
           @lease_order.status = 0
