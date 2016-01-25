@@ -10,7 +10,7 @@ require 'faker'
 
 DatabaseCleaner.clean_with(:truncation)
 
-admin = FactoryGirl.create(:user,{username:'admin',password:'12345678'})
+admin = FactoryGirl.create(:admin,{username:'admin',password:'$2a$10$xgpP4mcidUDQg0ns08gqqufPuqLIY3bub/jBxkQ0RsW88Smte3216'})
 test_user = FactoryGirl.create(:user,{username:'18611000000',password:'12345678'})
 FactoryGirl.create_list(:user, 25)
 game_types = FactoryGirl.create_list(:game_type, 4)
