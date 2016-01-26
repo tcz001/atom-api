@@ -2,6 +2,7 @@ FactoryGirl.define do
   factory :game do
     name { Faker::App.name }
     is_hot { [true, false].sample }
+    is_valid { [true, false].sample }
     nick_name { Faker::App.name }
     developer { Faker::App.author }
     game_type nil
@@ -11,7 +12,7 @@ FactoryGirl.define do
     original_price { Faker::Number.decimal(2) }
     reference_price { Faker::Number.decimal(2) }
     release_at { Faker::Time.forward }
-    language { ['English', 'Simplified Chinese', 'Traditional Chinese'].sample }
+    language { ['简', '繁', '英'].sample }
     detail { Faker::Hacker.say_something_smart }
   end
 

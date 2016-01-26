@@ -3,6 +3,7 @@ FactoryGirl.define do
     username { Faker::Number.number(10) }
     name { Faker::Internet.user_name }
     status 'active'
+    grade 0
     note { name + ' is my friend' }
     email { Faker::Internet.safe_email(username) }
     password '12345678'
