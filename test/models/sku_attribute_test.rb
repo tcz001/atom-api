@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class GameVersionTest < ActiveSupport::TestCase
+class SkuAttributeTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

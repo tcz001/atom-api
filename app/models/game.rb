@@ -1,5 +1,5 @@
 class Game < ActiveRecord::Base
-  belongs_to :game_version
+  has_many :game_skus
   belongs_to :game_type
   has_many :images, as: :imageable
   @@i18n = {
@@ -17,6 +17,14 @@ class Game < ActiveRecord::Base
   end
   def display_language
     self.language.split(',').map { |l| @@i18n[:language][l] }.join(',') if self.language.present?
+  end
+  def reference_price
+    sorted_prices = self.game_skus.sort_by{|e| e[:price]}
+    sorted_prices.first.price if sorted_prices.present?
+  end
+  def price_range
+    sorted_prices = self.game_skus.sort_by{|e| e[:price]}
+    "#{sorted_prices.first.price}-#{sorted_prices.last.price}"
   end
   def cover
     ApplicationController.helpers.qiniu_image_path(images.last.file.url, :thumbnail => '500x500', :quality => 80) if self.images.present?

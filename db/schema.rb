@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160117155838) do
+ActiveRecord::Schema.define(version: 20160215011552) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account",        limit: 255
@@ -19,14 +19,14 @@ ActiveRecord::Schema.define(version: 20160117155838) do
     t.integer  "status",         limit: 4
     t.datetime "start_at"
     t.datetime "expire_at"
-    t.integer  "game_id",        limit: 4
     t.integer  "lease_order_id", limit: 4
     t.integer  "is_valid",       limit: 4
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
+    t.integer  "game_sku_id",    limit: 4
   end
 
-  add_index "accounts", ["game_id"], name: "index_accounts_on_game_id", using: :btree
+  add_index "accounts", ["game_sku_id"], name: "index_accounts_on_game_sku_id", using: :btree
   add_index "accounts", ["lease_order_id"], name: "index_accounts_on_lease_order_id", using: :btree
 
   create_table "admins", force: :cascade do |t|
@@ -45,6 +45,27 @@ ActiveRecord::Schema.define(version: 20160117155838) do
   end
 
   add_index "charges", ["lease_order_id"], name: "index_charges_on_lease_order_id", using: :btree
+
+  create_table "game_sku_attribute_sets", id: false, force: :cascade do |t|
+    t.integer  "game_sku_id",      limit: 4
+    t.integer  "sku_attribute_id", limit: 4
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
+
+  add_index "game_sku_attribute_sets", ["game_sku_id"], name: "index_game_sku_attribute_sets_on_game_sku_id", using: :btree
+  add_index "game_sku_attribute_sets", ["sku_attribute_id"], name: "index_game_sku_attribute_sets_on_sku_attribute_id", using: :btree
+
+  create_table "game_skus", force: :cascade do |t|
+    t.integer  "game_id",    limit: 4
+    t.decimal  "price",                precision: 9, scale: 2
+    t.integer  "amount",     limit: 4
+    t.datetime "created_at",                                   null: false
+    t.datetime "updated_at",                                   null: false
+    t.boolean  "is_valid"
+  end
+
+  add_index "game_skus", ["game_id"], name: "index_game_skus_on_game_id", using: :btree
 
   create_table "game_types", force: :cascade do |t|
     t.string   "name",       limit: 255
@@ -70,7 +91,6 @@ ActiveRecord::Schema.define(version: 20160117155838) do
     t.boolean  "is_hot"
     t.decimal  "original_price",                precision: 9, scale: 2
     t.decimal  "reference_price",               precision: 9, scale: 2
-    t.integer  "game_version_id", limit: 4
     t.integer  "game_type_id",    limit: 4
     t.integer  "is_valid",        limit: 4
     t.datetime "created_at",                                            null: false
@@ -81,7 +101,6 @@ ActiveRecord::Schema.define(version: 20160117155838) do
   end
 
   add_index "games", ["game_type_id"], name: "index_games_on_game_type_id", using: :btree
-  add_index "games", ["game_version_id"], name: "index_games_on_game_version_id", using: :btree
 
   create_table "images", force: :cascade do |t|
     t.datetime "created_at",                    null: false
@@ -151,6 +170,13 @@ ActiveRecord::Schema.define(version: 20160117155838) do
 
   add_index "oauth_applications", ["uid"], name: "index_oauth_applications_on_uid", unique: true, using: :btree
 
+  create_table "sku_attributes", force: :cascade do |t|
+    t.string   "name",         limit: 255
+    t.string   "option_value", limit: 255
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+  end
+
   create_table "third_parties", force: :cascade do |t|
     t.string   "open_id",    limit: 255
     t.integer  "type",       limit: 4
@@ -179,8 +205,6 @@ ActiveRecord::Schema.define(version: 20160117155838) do
     t.string   "name",                   limit: 255
     t.string   "status",                 limit: 255
     t.text     "note",                   limit: 65535
-    t.text     "detail",                 limit: 65535
-    t.datetime "release_at"
     t.integer  "grade",                  limit: 4
     t.integer  "zm_credit",              limit: 4
   end
@@ -189,11 +213,13 @@ ActiveRecord::Schema.define(version: 20160117155838) do
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   add_index "users", ["username"], name: "index_users_on_username", unique: true, using: :btree
 
-  add_foreign_key "accounts", "games"
+  add_foreign_key "accounts", "game_skus"
   add_foreign_key "accounts", "lease_orders"
   add_foreign_key "charges", "lease_orders"
+  add_foreign_key "game_sku_attribute_sets", "game_skus"
+  add_foreign_key "game_sku_attribute_sets", "sku_attributes"
+  add_foreign_key "game_skus", "games"
   add_foreign_key "games", "game_types"
-  add_foreign_key "games", "game_versions"
   add_foreign_key "lease_orders", "users"
   add_foreign_key "third_parties", "users"
 end

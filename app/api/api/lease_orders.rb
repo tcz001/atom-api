@@ -121,23 +121,23 @@ module API
               }
     end
     params do
-      requires :game_ids, type: Array[Integer], desc: 'GameVersions in a LeaseOrder.', documentation: {example: '{"game_ids":[1]}'}
+      requires :game_sku_ids, type: Array[Integer], desc: 'GameSKUs in a LeaseOrder.', documentation: {example: '{"game_sku_ids":[1,2,3]}'}
     end
-    post "create" do
+    post "createv2" do
       doorkeeper_authorize!
       if current_resource_owner.grade.present? && current_resource_owner.grade == -1
         error!({error: 'blacklisted', detail: 'Sorry, you are in blacklist for some reason'}, 203)
       elsif current_resource_owner.grade.nil? || current_resource_owner.lease_orders.select { |o| [0, 2, 3].include? o.status }.length >= LeaseOrder.limit_by_grade(current_resource_owner.grade)
         error!({error: 'order number limited', detail: 'Sorry, you cannot create any new orders.'}, 203)
       elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
-        game= Game.where(id: params[:game_ids], is_valid: true)
-        if game.present?
+        game_sku = Game.where(id: params[:game_sku_ids], is_valid: true)
+        if game_sku.present?
           @lease_order = current_resource_owner.lease_orders.build
           @lease_order.status = 0
-          @lease_order.total_amount = game.pluck(:reference_price).reduce(:+)
+          @lease_order.total_amount = game_sku.pluck(:price).reduce(:+)
           @lease_order.save
-          game.each { |gv|
-            @account = @lease_order.accounts.build({game: gv})
+          game_sku.each { |sku|
+            @account = @lease_order.accounts.build({game_sku: sku})
             @account.save
           }
           present @lease_order, with: API::Entities::LeaseOrder

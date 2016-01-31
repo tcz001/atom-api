@@ -11,6 +11,7 @@ module API
       expose :max_player_num
       expose :original_price
       expose :reference_price
+      expose :price_range
       expose :cover
       expose :cover_small
       expose :display_language, as: :language

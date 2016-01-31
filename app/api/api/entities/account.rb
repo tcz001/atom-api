@@ -1,7 +1,8 @@
 module API
   module Entities
     class Account < Grape::Entity
-      expose :game, using: API::Entities::Game
+      expose :game, using: API::Entities::GameBrief
+      expose :game_sku, using: API::Entities::GameSku
       expose :status
       expose :account
       expose :password
