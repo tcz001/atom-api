@@ -130,19 +130,22 @@ module API
       elsif current_resource_owner.grade.nil? || current_resource_owner.lease_orders.select { |o| [0, 2, 3].include? o.status }.length >= LeaseOrder.limit_by_grade(current_resource_owner.grade)
         error!({error: 'order number limited', detail: 'Sorry, you cannot create any new orders.'}, 203)
       elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
-        game_sku = Game.where(id: params[:game_ids], is_valid: true).game_skus.first
-        if game_sku.present?
-          @lease_order = current_resource_owner.lease_orders.build
-          @lease_order.status = 0
-          @lease_order.total_amount = game_sku.pluck(:price).reduce(:+)
-          @lease_order.save
-          game_sku.each { |sku|
-            @account = @lease_order.accounts.build({game_sku: sku})
-            @account.save
-          }
-          present @lease_order, with: API::Entities::LeaseOrder
-        else
-          error!({error: 'wrong game_ids', detail: 'the game_ids of lease order is not found'}, 204)
+        games = Game.where(id: params[:game_ids], is_valid: true)
+        if games.present?
+          default_game_skus = games.map { |g| g.game_skus.first }
+          if default_game_skus.present?
+            @lease_order = current_resource_owner.lease_orders.build
+            @lease_order.status = 0
+            @lease_order.total_amount = default_game_skus.map{ |g| g.price }.reduce(:+)
+            @lease_order.save
+            default_game_skus.each { |sku|
+              @account = @lease_order.accounts.build({game_sku: sku})
+              @account.save
+            }
+            present @lease_order, with: API::Entities::LeaseOrder
+          else
+            error!({error: 'wrong game_ids', detail: 'the game_ids of lease order is not found'}, 204)
+          end
         end
       end
     end
@@ -163,13 +166,13 @@ module API
       elsif current_resource_owner.grade.nil? || current_resource_owner.lease_orders.select { |o| [0, 2, 3].include? o.status }.length >= LeaseOrder.limit_by_grade(current_resource_owner.grade)
         error!({error: 'order number limited', detail: 'Sorry, you cannot create any new orders.'}, 203)
       elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
-        game_sku = GameSku.where(id: params[:game_sku_ids], is_valid: true)
-        if game_sku.present?
+        game_skus = GameSku.where(id: params[:game_sku_ids], is_valid: true)
+        if game_skus.present?
           @lease_order = current_resource_owner.lease_orders.build
           @lease_order.status = 0
-          @lease_order.total_amount = game_sku.pluck(:price).reduce(:+)
+          @lease_order.total_amount = game_skus.map{ |g| g.price }.reduce(:+)
           @lease_order.save
-          game_sku.each { |sku|
+          game_skus.each { |sku|
             @account = @lease_order.accounts.build({game_sku: sku})
             @account.save
           }
