@@ -10,7 +10,7 @@ module API
       expose :min_player_num
       expose :max_player_num
       expose :original_price
-      expose :reference_price
+      expose :display_reference_price, as: :reference_price
       expose :price_range
       expose :cover
       expose :cover_small

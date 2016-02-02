@@ -18,7 +18,7 @@ class Game < ActiveRecord::Base
   def display_language
     self.language.split(',').map { |l| @@i18n[:language][l] }.join(',') if self.language.present?
   end
-  def reference_price
+  def display_reference_price
     sorted_prices = self.game_skus.sort_by{|e| e[:price]}
     sorted_prices.first.price if sorted_prices.present?
   end
