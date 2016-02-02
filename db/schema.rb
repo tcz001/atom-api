@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160215011553) do
+ActiveRecord::Schema.define(version: 20160215011551) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account",        limit: 255
@@ -46,7 +46,7 @@ ActiveRecord::Schema.define(version: 20160215011553) do
 
   add_index "charges", ["lease_order_id"], name: "index_charges_on_lease_order_id", using: :btree
 
-  create_table "game_sku_attribute_sets", id: false, force: :cascade do |t|
+  create_table "game_sku_attribute_sets", force: :cascade do |t|
     t.integer  "game_sku_id",      limit: 4
     t.integer  "sku_attribute_id", limit: 4
     t.datetime "created_at",                 null: false
@@ -62,7 +62,7 @@ ActiveRecord::Schema.define(version: 20160215011553) do
     t.integer  "amount",     limit: 4
     t.datetime "created_at",                                   null: false
     t.datetime "updated_at",                                   null: false
-    t.boolean  "is_valid"
+    t.integer  "is_valid",   limit: 4
   end
 
   add_index "game_skus", ["game_id"], name: "index_game_skus_on_game_id", using: :btree
