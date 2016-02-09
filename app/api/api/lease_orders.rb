@@ -235,7 +235,7 @@ module API
           if lease_order.status == 2
             lease_order.accounts.each { |a|
               a.start_at = 1.day.from_now.beginning_of_day
-              a.expire_at = a.start_at + 6.days
+              a.expire_at = a.start_at + (a.game_sku.sku_attributes.find_by_name('租用天数').option_value.to_i - 1).days
               a.save
             }
             lease_order.status = 3
