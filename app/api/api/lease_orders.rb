@@ -199,7 +199,7 @@ module API
           if lease_order.status == 2
             lease_order.accounts.each { |a|
               a.start_at = tomorrow.beginning_of_day
-              a.expire_at = a.start_at + 6.days
+              a.expire_at = (a.start_at + 6.days).end_of_day
               a.save
             }
             lease_order.status = 3
