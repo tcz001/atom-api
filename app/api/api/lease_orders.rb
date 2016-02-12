@@ -198,7 +198,7 @@ module API
           lease_order = charge_find_by_pingxx_ch_id.lease_order
           if lease_order.status == 2
             lease_order.accounts.each { |a|
-              a.start_at = tomorrow.beginning_of_day
+              a.start_at = 1.day.from_now.utc.beginning_of_day
               a.expire_at = (a.start_at + 6.days).end_of_day
               a.save
             }
