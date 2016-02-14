@@ -23,8 +23,10 @@ class Game < ActiveRecord::Base
     sorted_prices.first.price if sorted_prices.present?
   end
   def price_range
-    sorted_prices = self.game_skus.sort_by{|e| e[:price]}
-    "#{sorted_prices.first.price}-#{sorted_prices.last.price}"
+    if self.game_skus.present?
+      sorted_prices = self.game_skus.sort_by{|e| e[:price]}
+      return "#{sorted_prices.first.price}-#{sorted_prices.last.price}"
+    end
   end
   def cover
     ApplicationController.helpers.qiniu_image_path(images.last.file.url, :thumbnail => '500x500', :quality => 80) if self.images.present?
