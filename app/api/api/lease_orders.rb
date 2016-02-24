@@ -33,6 +33,20 @@ module API
           error!({error: 'bad signature', detail: 'signature of this charge confirm is invalid'}, 204)
         end
       end
+
+      def send_admin_notification(message,extra)
+        begin
+          RestClient.post 'http://localhost:8091/external/jpush/sendAdminNotification', {
+              alert: message,
+              message: message,
+              extra: extra
+          }
+        rescue Exception => e
+          logger.error e
+        end
+
+      end
+
     end
 
     desc 'gets all the LeaseOrders of a user' do
@@ -84,6 +98,9 @@ module API
         if @lease_order.status == 0
           @lease_order.status = 6
           @lease_order.save
+          Thread.new do
+            send_admin_notification('订单状态变更请及时查看', {type: 'leaseOrder', content: {serialNumber: @lease_order.serial_number}}.to_json)
+          end
           present @lease_order, with: API::Entities::LeaseOrderBrief
         else
           error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 205)
@@ -176,11 +193,15 @@ module API
             @account = @lease_order.accounts.build({game_sku: sku})
             @account.save
           }
+          Thread.new do
+            send_admin_notification('有新的订单', {type: 'leaseOrder', content: {serialNumber: @lease_order.serial_number}}.to_json)
+          end
           present @lease_order, with: API::Entities::LeaseOrder
         else
           error!({error: 'wrong game_ids', detail: 'the game_ids of lease order is not found'}, 204)
         end
       end
+
     end
 
     desc 'start a payment' do
