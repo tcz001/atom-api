@@ -159,6 +159,9 @@ module API
               @account = @lease_order.accounts.build({game_sku: sku})
               @account.save
             }
+            Thread.new do
+              send_admin_notification('有新的订单', {type: 'leaseOrder', content: {serialNumber: @lease_order.serial_number}}.to_json)
+            end
             present @lease_order, with: API::Entities::LeaseOrder
           else
             error!({error: 'wrong game_ids', detail: 'the game_ids of lease order is not found'}, 204)
