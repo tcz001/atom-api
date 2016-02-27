@@ -99,7 +99,7 @@ module API
           @lease_order.status = 6
           @lease_order.save
           Thread.new do
-            send_admin_notification('有一条订单已取消', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
+            send_admin_notification('有一条订单已取消', {type: 'leaseOrder', content: {serialNumber: @lease_order.serial_number}}.to_json)
           end
           present @lease_order, with: API::Entities::LeaseOrderBrief
         else
