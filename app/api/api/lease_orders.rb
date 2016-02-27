@@ -124,7 +124,9 @@ module API
         if @lease_order.status == 3
           @lease_order.status = 4
           @lease_order.save
-          send_admin_notification('订单状态变更请及时查看', {type: 'leaseOrder', content: {serialNumber: @lease_order.serial_number}}.to_json)
+          Thread.new do
+            send_admin_notification('订单状态变更请及时查看', {type: 'leaseOrder', content: {serialNumber: @lease_order.serial_number}}.to_json)
+          end
           present @lease_order, with: API::Entities::LeaseOrderBrief
         else
           error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 205)
@@ -265,7 +267,9 @@ module API
             }
             lease_order.status = 3
             lease_order.save
-            send_admin_notification('有一条订单已支付', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
+            Thread.new do
+              send_admin_notification('有一条订单已支付', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
+            end
           else
             logger.error 'receive and discard a invalid charge confirm'
             error!({error: 'lease_order error', detail: "charge confirming a invalid status=#{lease_order.status} lease_order"}, 203)
