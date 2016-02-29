@@ -33,5 +33,5 @@ games.each{|g|
   sku = GameSku.create(price:10.99,game: g,sku_attributes:[SkuAttribute.find_by_option_value('数字版'),SkuAttribute.find_by_option_value('港服'),SkuAttribute.find_by_option_value('7')])
   GameSku.create(price:100.99,game: g,sku_attributes:[SkuAttribute.find_by_option_value('数字版'),SkuAttribute.find_by_option_value('日服'),SkuAttribute.find_by_option_value('30')])
   lo = FactoryGirl.create(:lease_order, {user: test_user})
-  FactoryGirl.create(:account,{game_sku:sku,lease_order:lo})
+  FactoryGirl.create(:account,{game_sku:sku, lease_order:lo})
 }

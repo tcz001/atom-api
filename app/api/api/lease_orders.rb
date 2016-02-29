@@ -3,13 +3,13 @@ module API
     formatter :json, API::Formatter.normal
     error_formatter :json, API::Formatter.error
     helpers do
-      def create_charge
+      def create_lease_charge(lease_order)
         Pingpp.api_key = Rails.application.secrets.pingxx_api_key
         charge = Pingpp::Charge.create(
-            :order_no => @lease_order.serial_number,
-            :amount => (@lease_order.total_amount*100).to_i,
-            :subject => "#{@lease_order.user.username} is paying #{@lease_order.total_amount}",
-            :body => "#{@lease_order.user.username} is paying #{@lease_order.total_amount}",
+            :order_no => lease_order.serial_number,
+            :amount => (lease_order.total_amount*100).to_i,
+            :subject => "#{lease_order.user.username} is paying #{lease_order.total_amount}",
+            :body => "#{lease_order.user.username} is paying #{lease_order.total_amount}",
             :channel => 'alipay',
             :currency => 'cny',
             :client_ip => headers['X-Real-IP'].present? ? headers['X-Real-IP'] : '127.0.0.1',
@@ -34,7 +34,7 @@ module API
         end
       end
 
-      def send_admin_notification(message,extra)
+      def send_admin_notification(message, extra)
         begin
           RestClient.post 'http://localhost:8091/external/jpush/sendAdminNotification', {
               alert: message,
@@ -51,9 +51,9 @@ module API
 
     desc 'gets all the LeaseOrders of a user' do
       headers Authorization: {
-                  description: 'Check Resource Owner Authorization: \'Bearer token\'',
-                  required: true
-              }
+          description: 'Check Resource Owner Authorization: \'Bearer token\'',
+          required: true
+      }
     end
     get "my" do
       doorkeeper_authorize!
@@ -62,9 +62,9 @@ module API
 
     desc 'return a LeaseOrder info' do
       headers Authorization: {
-                  description: 'Check Resource Owner Authorization: \'Bearer token\'',
-                  required: true
-              }
+          description: 'Check Resource Owner Authorization: \'Bearer token\'',
+          required: true
+      }
     end
     params do
       requires :serial_number, type: String, desc: 'LeaseOrder serial_number.'
@@ -72,21 +72,21 @@ module API
     get "info" do
       doorkeeper_authorize!
       if (declared(params, include_missing: false)).present? && current_resource_owner.present?
-        @lease_order = current_resource_owner.lease_orders.find_by_serial_number(params[:serial_number])
-        if @lease_order.status == 3
-          present @lease_order, with: API::Entities::LeaseOrder
+        lease_order = current_resource_owner.lease_orders.find_by_serial_number(params[:serial_number])
+        if lease_order.status == 3
+          present lease_order, with: API::Entities::LeaseOrder
         end
-        if @lease_order.status != 3
-          present @lease_order, with: API::Entities::LeaseOrderBrief
+        if lease_order.status != 3
+          present lease_order, with: API::Entities::LeaseOrderBrief
         end
       end
     end
 
     desc 'cancel a LeaseOrder' do
       headers Authorization: {
-                  description: 'Check Resource Owner Authorization: \'Bearer token\'',
-                  required: true
-              }
+          description: 'Check Resource Owner Authorization: \'Bearer token\'',
+          required: true
+      }
     end
     params do
       requires :serial_number, type: String, desc: 'LeaseOrder serial_number.'
@@ -94,14 +94,14 @@ module API
     post "cancel" do
       doorkeeper_authorize!
       if (declared(params, include_missing: false)).present? && current_resource_owner.present?
-        @lease_order = current_resource_owner.lease_orders.find_by_serial_number(params[:serial_number])
-        if @lease_order.status == 0
-          @lease_order.status = 6
-          @lease_order.save
+        lease_order = current_resource_owner.lease_orders.find_by_serial_number(params[:serial_number])
+        if lease_order.status == 0
+          lease_order.status = 6
+          lease_order.save
           Thread.new do
-            send_admin_notification('有一条订单已取消', {type: 'leaseOrder', content: {serialNumber: @lease_order.serial_number}}.to_json)
+            send_admin_notification('有一条订单已取消', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
           end
-          present @lease_order, with: API::Entities::LeaseOrderBrief
+          present lease_order, with: API::Entities::LeaseOrderBrief
         else
           error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 205)
         end
@@ -110,9 +110,9 @@ module API
 
     desc 'release a LeaseOrder in advance' do
       headers Authorization: {
-                  description: 'Check Resource Owner Authorization: \'Bearer token\'',
-                  required: true
-              }
+          description: 'Check Resource Owner Authorization: \'Bearer token\'',
+          required: true
+      }
     end
     params do
       requires :serial_number, type: String, desc: 'LeaseOrder serial_number.'
@@ -120,14 +120,14 @@ module API
     post "release" do
       doorkeeper_authorize!
       if (declared(params, include_missing: false)).present? && current_resource_owner.present?
-        @lease_order = current_resource_owner.lease_orders.find_by_serial_number(params[:serial_number])
-        if @lease_order.status == 3
-          @lease_order.status = 4
-          @lease_order.save
+        lease_order = current_resource_owner.lease_orders.find_by_serial_number(params[:serial_number])
+        if lease_order.status == 3
+          lease_order.status = 4
+          lease_order.save
           Thread.new do
-            send_admin_notification('订单状态变更请及时查看', {type: 'leaseOrder', content: {serialNumber: @lease_order.serial_number}}.to_json)
+            send_admin_notification('订单状态变更请及时查看', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
           end
-          present @lease_order, with: API::Entities::LeaseOrderBrief
+          present lease_order, with: API::Entities::LeaseOrderBrief
         else
           error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 205)
         end
@@ -136,9 +136,9 @@ module API
 
     desc 'create a LeaseOrder' do
       headers Authorization: {
-                  description: 'Check Resource Owner Authorization: \'Bearer token\'',
-                  required: true
-              }
+          description: 'Check Resource Owner Authorization: \'Bearer token\'',
+          required: true
+      }
     end
     params do
       requires :game_ids, type: Array[Integer], desc: 'GameSKUs in a LeaseOrder.', documentation: {example: '{"game_ids":[1,2,3]}'}
@@ -154,18 +154,14 @@ module API
         if games.present?
           default_game_skus = games.map { |g| g.game_skus.first }
           if default_game_skus.present?
-            @lease_order = current_resource_owner.lease_orders.build
-            @lease_order.status = 0
-            @lease_order.total_amount = default_game_skus.map{ |g| g.price }.reduce(:+)
-            @lease_order.save
+            lease_order = current_resource_owner.lease_orders.create({status: 0, total_amount: default_game_skus.map { |g| g.price }.reduce(:+)})
             default_game_skus.each { |sku|
-              @account = @lease_order.accounts.build({game_sku: sku})
-              @account.save
+              lease_order.accounts.create({game_sku: sku})
             }
             Thread.new do
-              send_admin_notification('有新的订单', {type: 'leaseOrder', content: {serialNumber: @lease_order.serial_number}}.to_json)
+              send_admin_notification('有新的订单', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
             end
-            present @lease_order, with: API::Entities::LeaseOrder
+            present lease_order, with: API::Entities::LeaseOrder
           else
             error!({error: 'wrong game_ids', detail: 'the game_ids of lease order is not found'}, 204)
           end
@@ -175,9 +171,9 @@ module API
 
     desc 'create a LeaseOrder' do
       headers Authorization: {
-                  description: 'Check Resource Owner Authorization: \'Bearer token\'',
-                  required: true
-              }
+          description: 'Check Resource Owner Authorization: \'Bearer token\'',
+          required: true
+      }
     end
     params do
       requires :game_sku_ids, type: Array[Integer], desc: 'GameSKUs in a LeaseOrder.', documentation: {example: '{"game_sku_ids":[1,2,3]}'}
@@ -191,30 +187,25 @@ module API
       elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
         game_skus = GameSku.where(id: params[:game_sku_ids], is_valid: true)
         if game_skus.present?
-          @lease_order = current_resource_owner.lease_orders.build
-          @lease_order.status = 0
-          @lease_order.total_amount = game_skus.map{ |g| g.price }.reduce(:+)
-          @lease_order.save
+          lease_order = current_resource_owner.lease_orders.create({status: 0, total_amount: game_skus.map { |g| g.price }.reduce(:+)})
           game_skus.each { |sku|
-            @account = @lease_order.accounts.build({game_sku: sku})
-            @account.save
+            lease_order.accounts.create({game_sku: sku})
           }
           Thread.new do
-            send_admin_notification('有新的订单', {type: 'leaseOrder', content: {serialNumber: @lease_order.serial_number}}.to_json)
+            send_admin_notification('有新的订单', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
           end
-          present @lease_order, with: API::Entities::LeaseOrder
+          present lease_order, with: API::Entities::LeaseOrder
         else
           error!({error: 'wrong game_ids', detail: 'the game_ids of lease order is not found'}, 204)
         end
       end
-
     end
 
     desc 'start a payment' do
       headers Authorization: {
-                  description: 'Check Resource Owner Authorization: \'Bearer token\'',
-                  required: true
-              }
+          description: 'Check Resource Owner Authorization: \'Bearer token\'',
+          required: true
+      }
     end
     params do
       requires :serial_number, type: String, desc: 'LeaseOrder serial_number.'
@@ -223,16 +214,15 @@ module API
     post "charge" do
       doorkeeper_authorize!
       if (declared(params, include_missing: false)).present? && current_resource_owner.present?
-        @lease_order = current_resource_owner.lease_orders.find_by_serial_number(params[:serial_number])
-        if @lease_order.status <= 2
-          @lease_order.pay_type = params[:pay_type]
-          @lease_order.status = 2
+        lease_order = current_resource_owner.lease_orders.find_by_serial_number(params[:serial_number])
+        if lease_order.status <= 2
+          lease_order.pay_type = params[:pay_type]
+          lease_order.status = 2
           begin
-            @charge = create_charge
-            charge = @lease_order.charges.build(pingxx_ch_id: @charge.id, raw_data: @charge.to_json)
-            charge.save
-            @lease_order.save
-            body @charge.to_json
+            charge = create_lease_charge(lease_order)
+            lease_order.charges.create(pingxx_ch_id: charge.id, raw_data: charge.to_json)
+            lease_order.save
+            body charge.to_json
           rescue Exception => e
             logger.error e
             error!({error: 'unexpected error', detail: 'external payment service error'}, 500)
@@ -245,9 +235,9 @@ module API
 
     desc 'confirm a payment NOTICE: this api is not for app, but for Pingxx!' do
       headers 'x-pingplusplus-signature' => {
-                  description: 'Check Pingxx Signature: \'base64 RSA-SHA256 x-pingplusplus-signature\'',
-                  required: true
-              }
+          description: 'Check Pingxx Signature: \'base64 RSA-SHA256 x-pingplusplus-signature\'',
+          required: true
+      }
     end
     params do
       optional :event, type: JSON
@@ -259,7 +249,7 @@ module API
         charge_find_by_pingxx_ch_id = Charge.find_by_pingxx_ch_id(charge[:id])
         if charge.object == 'charge' && charge.paid == true && charge_find_by_pingxx_ch_id.present?
           lease_order = charge_find_by_pingxx_ch_id.lease_order
-          if lease_order.status == 2
+          if lease_order.present? && lease_order.status == 2
             lease_order.accounts.each { |a|
               a.start_at = 1.day.from_now.beginning_of_day
               a.expire_at = (a.start_at + (a.game_sku.sku_attributes.find_by_name('租用天数').option_value.to_i - 1).days).end_of_day

@@ -5,6 +5,7 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable
 
   has_many :lease_orders
+  has_many :prepaid_orders
   has_many :images, as: :imageable
 
   def avatar
