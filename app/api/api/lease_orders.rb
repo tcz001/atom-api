@@ -146,9 +146,9 @@ module API
     post "create" do
       doorkeeper_authorize!
       if current_resource_owner.grade.present? && current_resource_owner.grade == -1
-        error!({error: 'blacklisted', detail: 'Sorry, you are in blacklist for some reason'}, 203)
-      elsif current_resource_owner.grade.nil? || current_resource_owner.lease_orders.select { |o| [0, 2, 3].include? o.status }.length >= LeaseOrder.limit_by_grade(current_resource_owner.grade)
-        error!({error: 'order number limited', detail: 'Sorry, you cannot create any new orders.'}, 203)
+        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 203)
+      elsif current_resource_owner.grade.nil? || current_resource_owner.lease_orders.select { |o| [0, 2, 3, 4].include? o.status }.length >= LeaseOrder.limit_by_grade(current_resource_owner.grade)
+        error!({error: '订单数量限制', detail: '很抱歉您进行中的订单已达上限'}, 203)
       elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
         games = Game.where(id: params[:game_ids], is_valid: true)
         if games.present?
@@ -181,9 +181,9 @@ module API
     post "createv2" do
       doorkeeper_authorize!
       if current_resource_owner.grade.present? && current_resource_owner.grade == -1
-        error!({error: 'blacklisted', detail: 'Sorry, you are in blacklist for some reason'}, 203)
-      elsif current_resource_owner.grade.nil? || current_resource_owner.lease_orders.select { |o| [0, 2, 3].include? o.status }.length >= LeaseOrder.limit_by_grade(current_resource_owner.grade)
-        error!({error: 'order number limited', detail: 'Sorry, you cannot create any new orders.'}, 203)
+        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 203)
+      elsif current_resource_owner.grade.nil? || current_resource_owner.lease_orders.select { |o| [0, 2, 3, 4].include? o.status }.length >= LeaseOrder.limit_by_grade(current_resource_owner.grade)
+        error!({error: '订单数量限制', detail: '很抱歉您进行中的订单已达上限'}, 203)
       elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
         game_skus = GameSku.where(id: params[:game_sku_ids], is_valid: true)
         if game_skus.present?
