@@ -6,6 +6,7 @@ module API
       expose :status
       expose :grade
       expose :zm_credit
+      expose :free_balance
       expose :note
       expose :avatar
     end
