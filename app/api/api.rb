@@ -34,6 +34,7 @@ module API
     mount API::LeaseOrders => '/lease_orders'
     mount API::PrepaidOrders => '/prepaid_orders'
     mount API::Galleries => '/galleries'
+    mount API::Notifications => '/notifications'
 
     add_swagger_documentation(
         base_path: '/api',
