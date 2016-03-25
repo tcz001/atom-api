@@ -7,7 +7,7 @@ module API
     helpers do
       def get_notifications_by_username(username)
         begin
-          response = RestClient.get 'http://localhost:8091/external/notificationStore/getByMobile?mobile='+username
+          response = RestClient.get 'http://localhost:8091/external/notificationStore/getRecentByMobileAndNid?mobile='+username+'&nid=0'
           notifications = JSON.parse(response)
           return notifications
         rescue Exception => e
