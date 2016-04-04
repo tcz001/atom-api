@@ -19,12 +19,12 @@ class Game < ActiveRecord::Base
     self.language.split(',').map { |l| @@i18n[:language][l] }.join(',') if self.language.present?
   end
   def display_reference_price
-    sorted_prices = self.game_skus.sort_by{|e| e[:price]}
+    sorted_prices = self.game_skus_published.sort_by{|e| e[:price]}
     sorted_prices.first.price if sorted_prices.present?
   end
   def price_range
     if self.game_skus.present?
-      sorted_prices = self.game_skus.sort_by{|e| e[:price]}
+      sorted_prices = self.game_skus_published.sort_by{|e| e[:price]}
       return "#{sorted_prices.first.price}-#{sorted_prices.last.price}"
     end
   end
