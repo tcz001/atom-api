@@ -17,7 +17,7 @@ module API
       expose :display_language, as: :language
       expose :release_at
       expose :detail
-      expose :game_skus, using: API::Entities::GameSku
+      expose :game_skus_published, using: API::Entities::GameSku, as: :game_skus
     end
   end
 end

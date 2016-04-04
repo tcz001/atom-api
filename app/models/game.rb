@@ -28,6 +28,9 @@ class Game < ActiveRecord::Base
       return "#{sorted_prices.first.price}-#{sorted_prices.last.price}"
     end
   end
+  def game_skus_published
+    game_skus.published
+  end
   def cover
     ApplicationController.helpers.qiniu_image_path(images.last.file.url, :thumbnail => '500x500', :quality => 80) if self.images.present?
   end
