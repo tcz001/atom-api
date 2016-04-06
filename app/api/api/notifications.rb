@@ -44,7 +44,7 @@ module API
       }
     end
     params do
-      requires :nid, type: String, desc: 'latest nid.'
+      requires :nid, type: Integer, desc: 'latest nid.'
     end
     get "recent" do
       doorkeeper_authorize!
@@ -58,7 +58,7 @@ module API
       }
     end
     params do
-      requires :nid, type: String, desc: 'latest nid.'
+      requires :nid, type: Integer, desc: 'latest nid.'
     end
     get "count_recent" do
       doorkeeper_authorize!
