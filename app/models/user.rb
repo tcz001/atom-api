@@ -6,6 +6,7 @@ class User < ActiveRecord::Base
 
   has_many :lease_orders
   has_many :prepaid_orders
+  has_many :balance_histories
   has_many :images, as: :imageable
 
   def avatar

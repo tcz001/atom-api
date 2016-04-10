@@ -7,6 +7,9 @@ module API
       expose :grade
       expose :zm_credit
       expose :free_balance
+      expose :free_credit_balance
+      expose :frozen_balance
+      expose :frozen_credit_balance
       expose :note
       expose :avatar
     end

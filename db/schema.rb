@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160229235018) do
+ActiveRecord::Schema.define(version: 20160306022221) do
 
   create_table "accounts", force: :cascade do |t|
     t.string "account", limit: 255
@@ -35,6 +35,18 @@ ActiveRecord::Schema.define(version: 20160229235018) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  create_table "balance_histories", force: :cascade do |t|
+    t.string "serial_number", limit: 255
+    t.string "event", limit: 255
+    t.decimal "amount", precision: 9, scale: 2
+    t.string "related_order", limit: 255
+    t.integer "user_id", limit: 4
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "balance_histories", ["user_id"], name: "index_balance_histories_on_user_id", using: :btree
 
   create_table "charges", force: :cascade do |t|
     t.integer "lease_order_id", limit: 4
@@ -127,6 +139,7 @@ ActiveRecord::Schema.define(version: 20160229235018) do
     t.integer "is_valid", limit: 4
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "frozen_amount", precision: 9, scale: 2
   end
 
   add_index "lease_orders", ["serial_number"], name: "index_lease_orders_on_serial_number", using: :btree
@@ -221,7 +234,10 @@ ActiveRecord::Schema.define(version: 20160229235018) do
     t.text "note", limit: 65535
     t.integer "grade", limit: 4
     t.integer "zm_credit", limit: 4
-    t.decimal "free_balance", precision: 10
+    t.decimal "free_balance", precision: 9, scale: 2, default: 0.0
+    t.decimal "frozen_balance", precision: 9, scale: 2, default: 0.0
+    t.decimal "free_credit_balance", precision: 9, scale: 2, default: 0.0
+    t.decimal "frozen_credit_balance", precision: 9, scale: 2, default: 0.0
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
@@ -230,6 +246,7 @@ ActiveRecord::Schema.define(version: 20160229235018) do
 
   add_foreign_key "accounts", "game_skus"
   add_foreign_key "accounts", "lease_orders"
+  add_foreign_key "balance_histories", "users"
   add_foreign_key "charges", "lease_orders"
   add_foreign_key "charges", "prepaid_orders"
   add_foreign_key "game_sku_attribute_sets", "game_skus"

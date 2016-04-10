@@ -38,6 +38,6 @@ class LeaseOrder < ActiveRecord::Base
 
   private
   def generate_serial_number
-    self.serial_number = Base64.encode64(SecureRandom.uuid).slice(0,5) + Time.now.strftime("%y%m%d%H%M%S")
+    self.serial_number = 'LO' + Base64.encode64(SecureRandom.uuid).slice(0,5) + Time.now.strftime("%y%m%d%H%M%S")
   end
 end

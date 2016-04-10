@@ -4,6 +4,7 @@ module API
       expose :serial_number
       expose :status
       expose :total_amount
+      expose :frozen_amount
       expose :accounts, using: API::Entities::Account
       expose :created_at
       expose :updated_at

@@ -103,14 +103,6 @@ module API
       end
     end
 
-    desc 'gets the Users list'
-    params do
-      use :pagination
-    end
-    get "list" do
-      present User.page(params[:page]).per(params[:per_page]), with: API::Entities::UserBrief
-    end
-
     desc 'return my User info' do
       headers Authorization: {
                   description: 'Check Resource Owner Authorization: \'Bearer token\'',

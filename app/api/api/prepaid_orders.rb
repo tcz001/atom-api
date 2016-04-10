@@ -30,7 +30,7 @@ module API
         pub_key_path = "#{Rails.root}/config/rsa_public_key.pem"
         unless verify_signature(raw_data, signature, pub_key_path)
           logger.error 'receive and discard a invalid charge confirm, verify signature error'
-          error!({error: 'bad signature', detail: 'signature of this charge confirm is invalid'}, 204)
+          error!({error: 'bad signature', detail: 'signature of this charge confirm is invalid'}, 403)
         end
       end
     end
@@ -75,7 +75,7 @@ module API
     post "charge" do
       doorkeeper_authorize!
       if (declared(params, include_missing: false)).present? && current_resource_owner.present?
-        error!({error: 'wrong amount', detail: 'the total_amount must be greater than one'}, 203) unless params[:total_amount] > 0
+        error!({error: 'wrong amount', detail: 'the total_amount must be greater than one'}, 403) unless params[:total_amount] > 0
         prepaid_order = current_resource_owner.prepaid_orders.create(total_amount: params[:total_amount], status: 0, pay_type: params[:pay_type])
         begin
           charge = create_prepaid_charge(prepaid_order)
@@ -87,7 +87,7 @@ module API
           error!({error: 'unexpected error', detail: 'external payment service error'}, 500)
         end
       else
-        error!({error: 'wrong params', detail: 'the params of prepaid order is invalid'}, 205)
+        error!({error: 'wrong params', detail: 'the params of prepaid order is invalid'}, 400)
       end
     end
 
@@ -115,7 +115,7 @@ module API
             prepaid_order.save
           else
             logger.error 'receive and discard a invalid charge confirm'
-            error!({error: 'prepaid_order error', detail: "charge confirming a invalid status=#{prepaid_order.status} prepaid_order"}, 203)
+            error!({error: 'prepaid_order error', detail: "charge confirming a invalid status=#{prepaid_order.status} prepaid_order"}, 400)
           end
         else
           logger.error 'receive and discard a invalid charge confirm'

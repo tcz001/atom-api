@@ -30,7 +30,7 @@ module API
         pub_key_path = "#{Rails.root}/config/rsa_public_key.pem"
         unless verify_signature(raw_data, signature, pub_key_path)
           logger.error 'receive and discard a invalid charge confirm, verify signature error'
-          error!({error: 'bad signature', detail: 'signature of this charge confirm is invalid'}, 204)
+          error!({error: 'bad signature', detail: 'signature of this charge confirm is invalid'}, 403)
         end
       end
 
@@ -47,8 +47,53 @@ module API
 
       end
 
-    end
+      def check_balance(user, lease_order)
+        if user.free_credit_balance >= lease_order.frozen_amount && user.free_balance >= lease_order.total_amount
+          return true
+        elsif user.free_balance >= lease_order.total_amount+lease_order.frozen_amount
+          return true
+        elsif user.free_balance > lease_order.total_amount && (user.free_balance - lease_order.total_amount) + user.free_credit_balance >= lease_order.frozen_amount
+          return true
+        end
+        false
+      end
 
+      def cal_lack_of_balance(user, lease_order)
+        return if check_balance(user, lease_order)
+        user.free_credit_balance >= lease_order.frozen_amount ?
+            (lease_order.total_amount - user.free_balance) : ((lease_order.frozen_amount + lease_order.total_amount) - (user.free_credit_balance + user.free_balance))
+      end
+
+      def freeze_balance(user, lease_order)
+        return unless check_balance(user, lease_order)
+        if user.free_credit_balance >= lease_order.frozen_amount
+          freeze_credit = lease_order.frozen_amount
+          freeze_amount = lease_order.total_amount
+        else
+          freeze_credit = user.free_credit_balance
+          freeze_amount = lease_order.total_amount + (lease_order.frozen_amount - user.free_credit_balance)
+        end
+        if freeze_credit > 0
+          user.free_credit_balance -= freeze_credit
+          user.frozen_credit_balance += freeze_credit
+          user.balance_histories.build(
+              {
+                  event: '冻结信用币',
+                  amount: freeze_credit,
+                  related_order: lease_order.serial_number,
+              })
+        end
+        user.free_balance -= freeze_amount
+        user.frozen_balance += freeze_amount
+        user.balance_histories.build(
+            {
+                event: '冻结游戏币',
+                amount: freeze_amount,
+                related_order: lease_order.serial_number,
+            })
+        user.save
+      end
+    end
     desc 'gets all the LeaseOrders of a user' do
       headers Authorization: {
           description: 'Check Resource Owner Authorization: \'Bearer token\'',
@@ -82,7 +127,7 @@ module API
       end
     end
 
-    desc 'cancel a LeaseOrder' do
+    desc 'cancel a LeaseOrder (deprecated)' do
       headers Authorization: {
           description: 'Check Resource Owner Authorization: \'Bearer token\'',
           required: true
@@ -103,7 +148,33 @@ module API
           end
           present lease_order, with: API::Entities::LeaseOrderBrief
         else
-          error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 205)
+          error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 400)
+        end
+      end
+    end
+
+    desc 'cancel a LeaseOrder (deprecated)' do
+      headers Authorization: {
+          description: 'Check Resource Owner Authorization: \'Bearer token\'',
+          required: true
+      }
+    end
+    params do
+      requires :serial_number, type: String, desc: 'LeaseOrder serial_number.'
+    end
+    post "cancelv3" do
+      doorkeeper_authorize!
+      if (declared(params, include_missing: false)).present? && current_resource_owner.present?
+        lease_order = current_resource_owner.lease_orders.find_by_serial_number(params[:serial_number])
+        if lease_order.status == 0
+          lease_order.status = 6
+          lease_order.save
+          Thread.new do
+            send_admin_notification('有一条订单已取消', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
+          end
+          present lease_order, with: API::Entities::LeaseOrderBrief
+        else
+          error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 400)
         end
       end
     end
@@ -129,12 +200,12 @@ module API
           end
           present lease_order, with: API::Entities::LeaseOrderBrief
         else
-          error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 205)
+          error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 400)
         end
       end
     end
 
-    desc 'create a LeaseOrder' do
+    desc 'create a LeaseOrder (deprecated)' do
       headers Authorization: {
           description: 'Check Resource Owner Authorization: \'Bearer token\'',
           required: true
@@ -146,9 +217,9 @@ module API
     post "create" do
       doorkeeper_authorize!
       if current_resource_owner.grade.present? && current_resource_owner.grade == -1
-        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 203)
+        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 403)
       elsif current_resource_owner.grade.nil? || current_resource_owner.lease_orders.select { |o| [0, 2, 3, 4].include? o.status }.length >= LeaseOrder.limit_by_grade(current_resource_owner.grade)
-        error!({error: '订单数量限制', detail: '很抱歉您进行中的订单已达上限'}, 203)
+        error!({error: '订单数量限制', detail: '很抱歉您进行中的订单已达上限'}, 403)
       elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
         games = Game.where(id: params[:game_ids], is_valid: true)
         if games.present?
@@ -163,8 +234,40 @@ module API
             end
             present lease_order, with: API::Entities::LeaseOrder
           else
-            error!({error: 'wrong game_ids', detail: 'the game_ids of lease order is not found'}, 204)
+            error!({error: 'wrong game_ids', detail: 'the game_ids of lease order is not found'}, 404)
           end
+        end
+      end
+    end
+
+    desc 'create a LeaseOrder (deprecated)' do
+      headers Authorization: {
+          description: 'Check Resource Owner Authorization: \'Bearer token\'',
+          required: true
+      }
+    end
+    params do
+      requires :game_sku_ids, type: Array[Integer], desc: 'GameSKUs in a LeaseOrder.', documentation: {example: '{"game_sku_ids":[1,2,3]}'}
+    end
+    post "createv2" do
+      doorkeeper_authorize!
+      if current_resource_owner.grade.present? && current_resource_owner.grade == -1
+        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 403)
+      elsif current_resource_owner.grade.nil? || current_resource_owner.lease_orders.select { |o| [0, 2, 3, 4].include? o.status }.length >= LeaseOrder.limit_by_grade(current_resource_owner.grade)
+        error!({error: '订单数量限制', detail: '很抱歉您进行中的订单已达上限'}, 403)
+      elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
+        game_skus = GameSku.where(id: params[:game_sku_ids], is_valid: true)
+        if game_skus.present?
+          lease_order = current_resource_owner.lease_orders.create({status: 0, total_amount: game_skus.map { |g| g.price }.reduce(:+)})
+          game_skus.each { |sku|
+            lease_order.accounts.create({game_sku: sku})
+          }
+          Thread.new do
+            send_admin_notification('有新的订单', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
+          end
+          present lease_order, with: API::Entities::LeaseOrder
+        else
+          error!({error: 'wrong game_ids', detail: 'the game_ids of lease order is not found'}, 404)
         end
       end
     end
@@ -178,30 +281,40 @@ module API
     params do
       requires :game_sku_ids, type: Array[Integer], desc: 'GameSKUs in a LeaseOrder.', documentation: {example: '{"game_sku_ids":[1,2,3]}'}
     end
-    post "createv2" do
+    post "createv3" do
       doorkeeper_authorize!
       if current_resource_owner.grade.present? && current_resource_owner.grade == -1
-        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 203)
-      elsif current_resource_owner.grade.nil? || current_resource_owner.lease_orders.select { |o| [0, 2, 3, 4].include? o.status }.length >= LeaseOrder.limit_by_grade(current_resource_owner.grade)
-        error!({error: '订单数量限制', detail: '很抱歉您进行中的订单已达上限'}, 203)
+        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 403)
       elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
         game_skus = GameSku.where(id: params[:game_sku_ids], is_valid: true)
         if game_skus.present?
-          lease_order = current_resource_owner.lease_orders.create({status: 0, total_amount: game_skus.map { |g| g.price }.reduce(:+)})
-          game_skus.each { |sku|
-            lease_order.accounts.create({game_sku: sku})
-          }
-          Thread.new do
-            send_admin_notification('有新的订单', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
+          lease_order = current_resource_owner.lease_orders.build(
+              {
+                  status: 0,
+                  total_amount: game_skus.map { |g| g.price }.reduce(:+),
+                  frozen_amount: 150
+              })
+          if !check_balance(current_resource_owner, lease_order)
+            error!({error: '余额不足', detail: {lack_of_balance: cal_lack_of_balance(current_resource_owner, lease_order)}}, 403)
+          else
+            lease_order.save
+            game_skus.each { |sku|
+              lease_order.accounts.create({game_sku: sku})
+            }
+            freeze_balance(current_resource_owner, lease_order)
+
+            Thread.new do
+              send_admin_notification('有新的订单', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
+            end
+            present lease_order, with: API::Entities::LeaseOrder
           end
-          present lease_order, with: API::Entities::LeaseOrder
         else
-          error!({error: 'wrong game_ids', detail: 'the game_ids of lease order is not found'}, 204)
+          error!({error: 'sku id 错误', detail: '找不到对应的sku'}, 404)
         end
       end
     end
 
-    desc 'start a payment' do
+    desc 'start a payment (deprecated)' do
       headers Authorization: {
           description: 'Check Resource Owner Authorization: \'Bearer token\'',
           required: true
@@ -228,12 +341,12 @@ module API
             error!({error: 'unexpected error', detail: 'external payment service error'}, 500)
           end
         else
-          error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 205)
+          error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 400)
         end
       end
     end
 
-    desc 'confirm a payment NOTICE: this api is not for app, but for Pingxx!' do
+    desc 'confirm a payment NOTICE: this api is not for app, but for Pingxx! (deprecated)' do
       headers 'x-pingplusplus-signature' => {
           description: 'Check Pingxx Signature: \'base64 RSA-SHA256 x-pingplusplus-signature\'',
           required: true
@@ -262,7 +375,7 @@ module API
             end
           else
             logger.error 'receive and discard a invalid charge confirm'
-            error!({error: 'lease_order error', detail: "charge confirming a invalid status=#{lease_order.status} lease_order"}, 203)
+            error!({error: 'lease_order error', detail: "charge confirming a invalid status=#{lease_order.status} lease_order"}, 400)
           end
         else
           logger.error 'receive and discard a invalid charge confirm'
