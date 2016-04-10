@@ -156,6 +156,32 @@ module API
       end
     end
 
+    desc 'cancel a LeaseOrder (deprecated)' do
+      headers Authorization: {
+          description: 'Check Resource Owner Authorization: \'Bearer token\'',
+          required: true
+      }
+    end
+    params do
+      requires :serial_number, type: String, desc: 'LeaseOrder serial_number.'
+    end
+    post "cancelv3" do
+      doorkeeper_authorize!
+      if (declared(params, include_missing: false)).present? && current_resource_owner.present?
+        lease_order = current_resource_owner.lease_orders.find_by_serial_number(params[:serial_number])
+        if lease_order.status == 0
+          lease_order.status = 6
+          lease_order.save
+          Thread.new do
+            send_admin_notification('有一条订单已取消', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
+          end
+          present lease_order, with: API::Entities::LeaseOrderBrief
+        else
+          error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 400)
+        end
+      end
+    end
+
     desc 'release a LeaseOrder in advance' do
       headers Authorization: {
           description: 'Check Resource Owner Authorization: \'Bearer token\'',
