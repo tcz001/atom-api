@@ -4,7 +4,7 @@ module API
     error_formatter :json, API::Formatter.error
     helpers SharedParams
 
-    desc 'return my User info' do
+    desc 'return my BalanceHistories info' do
       headers Authorization: {
                   description: 'Check Resource Owner Authorization: \'Bearer token\'',
                   required: true
