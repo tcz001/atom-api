@@ -110,6 +110,12 @@ module API
           if prepaid_order.present? && prepaid_order.status == 0
             prepaid_order.user.free_balance = 0 if prepaid_order.user.free_balance.nil?
             prepaid_order.user.free_balance += prepaid_order.total_amount
+            prepaid_order.user.balance_histories.build(
+                {
+                    event: '充值游戏币',
+                    amount: prepaid_order.total_amount,
+                    related_order: prepaid_order.serial_number,
+                })
             prepaid_order.user.save
             prepaid_order.status = 1
             prepaid_order.save

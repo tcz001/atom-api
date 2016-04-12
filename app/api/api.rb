@@ -33,6 +33,7 @@ module API
     mount API::Games => '/games'
     mount API::LeaseOrders => '/lease_orders'
     mount API::PrepaidOrders => '/prepaid_orders'
+    mount API::BalanceHistories => '/balance_histories'
     mount API::Galleries => '/galleries'
     mount API::Notifications => '/notifications'
 
