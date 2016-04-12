@@ -12,7 +12,7 @@ module API
     end
     get "my" do
       doorkeeper_authorize!
-      present current_resource_owner.balance_histories, with: API::Entities::BalanceHistory
+      present current_resource_owner.balance_histories.order(updated_at: :desc), with: API::Entities::BalanceHistory
     end
 
   end
