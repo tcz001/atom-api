@@ -26,7 +26,7 @@ module API
         end
       rescue Exception => e
         logger.error e
-        error!({error: 'unexpected error', detail: 'external sms service error'}, 500)
+        error!({error: '注册短信服务故障,请联系客服', detail: '注册短信服务故障,请联系客服'}, 500)
       end
     end
 
@@ -40,9 +40,9 @@ module API
         user = User.new(username: params[:mobile]).persisted?
         if user
           if user.status == 'active'
-            error!({error: 'username already taken', detail: 'sign up error'}, 203)
+            error!({error: '用户已存在', detail: '用户已存在'}, 203)
           else
-            error!({error: 'unexpected user status: '+user.status, detail: 'sign up error'}, 203)
+            error!({error: '错误的用户状态: '+user.status, detail: '错误的用户状态'}, 203)
           end
         else
           if verify_code(params[:code], params[:mobile])
@@ -56,7 +56,7 @@ module API
         end
       rescue Exception => e
         logger.error e
-        error!({error: 'unexpected error', detail: 'sign up error or external sms service error'}, 500)
+        error!({error: '注册短信服务故障,请联系客服', detail: '注册短信服务故障,请联系客服'}, 500)
       end
     end
 
@@ -76,11 +76,11 @@ module API
         if current_resource_owner.valid_password?(params[:old_password])
           current_resource_owner.update({password:params[:new_password]})
         else
-          error!({error: 'wrong old password', detail: 'old password doesnt match'}, 203)
+          error!({error: '旧密码不正确', detail: '旧密码不正确'}, 203)
         end
       rescue Exception => e
         logger.error e
-        error!({error: 'unexpected error', detail: 'change password error'}, 500)
+        error!({error: '修改密码出错', detail: '修改密码出错'}, 500)
       end
     end
 
@@ -98,7 +98,7 @@ module API
           user.password = params[:password]
           user.save
         else
-          error!({error: 'unexpected error', detail: 'user not found error'}, 500)
+          error!({error: '用户不存在', detail: '用户不存在'}, 500)
         end
       end
     end
