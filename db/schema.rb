@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160306022221) do
+ActiveRecord::Schema.define(version: 20160425231134) do
 
   create_table "accounts", force: :cascade do |t|
     t.string "account", limit: 255
@@ -140,6 +140,8 @@ ActiveRecord::Schema.define(version: 20160306022221) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.decimal "frozen_amount", precision: 9, scale: 2
+    t.decimal "deposit", precision: 9, scale: 2
+    t.decimal "deposit_credit", precision: 9, scale: 2
   end
 
   add_index "lease_orders", ["serial_number"], name: "index_lease_orders_on_serial_number", using: :btree

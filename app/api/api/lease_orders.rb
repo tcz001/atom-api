@@ -67,12 +67,15 @@ module API
       def freeze_balance(user, lease_order)
         return unless check_balance(user, lease_order)
         if user.free_credit_balance >= lease_order.frozen_amount
-          freeze_credit = lease_order.frozen_amount
-          freeze_amount = lease_order.total_amount
+          lease_order.deposit_credit = lease_order.frozen_amount
+          lease_order.deposit = 0
         else
-          freeze_credit = user.free_credit_balance
-          freeze_amount = lease_order.total_amount + (lease_order.frozen_amount - user.free_credit_balance)
+          lease_order.deposit_credit = user.free_credit_balance
+          lease_order.deposit = lease_order.frozen_amount - lease_order.deposit_credit
         end
+        lease_order.save
+        freeze_credit = lease_order.deposit_credit
+        freeze = lease_order.total_amount + lease_order.deposit
         if freeze_credit > 0
           user.free_credit_balance -= freeze_credit
           user.frozen_credit_balance += freeze_credit
@@ -83,12 +86,12 @@ module API
                   related_order: lease_order.serial_number,
               })
         end
-        user.free_balance -= freeze_amount
-        user.frozen_balance += freeze_amount
+        user.free_balance -= freeze
+        user.frozen_balance += freeze
         user.balance_histories.create(
             {
                 event: '冻结游戏币',
-                amount: freeze_amount,
+                amount: freeze,
                 related_order: lease_order.serial_number,
             })
         user.save
