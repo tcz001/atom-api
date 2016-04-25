@@ -76,7 +76,7 @@ module API
         if freeze_credit > 0
           user.free_credit_balance -= freeze_credit
           user.frozen_credit_balance += freeze_credit
-          user.balance_histories.build(
+          user.balance_histories.create(
               {
                   event: '冻结信用币',
                   amount: freeze_credit,
@@ -85,7 +85,7 @@ module API
         end
         user.free_balance -= freeze_amount
         user.frozen_balance += freeze_amount
-        user.balance_histories.build(
+        user.balance_histories.create(
             {
                 event: '冻结游戏币',
                 amount: freeze_amount,
