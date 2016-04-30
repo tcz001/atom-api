@@ -8,7 +8,7 @@ module API
       def verify_code(code, mobile)
         response = RestClient.get 'http://localhost:8091/external/sms/checkCode?code='+code+'&mobile='+mobile
         json = JSON.parse(response)
-        return json['status'] == 'error'
+        return json
       end
     end
 
@@ -45,7 +45,8 @@ module API
             error!({error: '错误的用户状态: '+user.status, detail: '错误的用户状态'}, 203)
           end
         else
-          if verify_code(params[:code], params[:mobile])
+          json = verify_code(params[:code], params[:mobile])
+          if json['status'] == 'error'
             error!({error: json['content'], detail: json['content']}, 203)
           else
             user = User.create(username: params[:mobile], password: params[:password], status: 'active', grade: 0)
@@ -90,7 +91,8 @@ module API
       requires :code, type: String, desc: 'code.'
     end
     post "forget_password" do
-      if verify_code(params[:code], params[:mobile])
+      json = verify_code(params[:code], params[:mobile])
+      if json['status'] == 'error'
         error!({error: json['content'], detail: json['content']}, 203)
       else
         user = User.find_by_username(params[:mobile])
