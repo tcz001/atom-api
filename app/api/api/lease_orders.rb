@@ -65,6 +65,8 @@ module API
       end
 
       def freeze_balance(user, lease_order)
+        lease_order.deposit_credit = 0
+        lease_order.deposit = 0
         return unless check_balance(user, lease_order)
         if user.free_credit_balance >= lease_order.frozen_amount
           lease_order.deposit_credit = lease_order.frozen_amount

@@ -75,7 +75,7 @@ module API
     post "charge" do
       doorkeeper_authorize!
       if (declared(params, include_missing: false)).present? && current_resource_owner.present?
-        error!({error: 'wrong amount', detail: 'the total_amount must be greater than one'}, 403) unless params[:total_amount] > 0
+        error!({error: '错误的金额', detail: '充值余额不得低于 0'}, 400) unless params[:total_amount] > 0
         prepaid_order = current_resource_owner.prepaid_orders.create(total_amount: params[:total_amount], status: 0, pay_type: params[:pay_type])
         begin
           charge = create_prepaid_charge(prepaid_order)
@@ -86,6 +86,32 @@ module API
           logger.error e
           error!({error: 'unexpected error', detail: 'external payment service error'}, 500)
         end
+      else
+        error!({error: 'wrong params', detail: 'the params of prepaid order is invalid'}, 400)
+      end
+    end
+
+    desc 'start a refund' do
+      headers Authorization: {
+          description: 'Check Resource Owner Authorization: \'Bearer token\'',
+          required: true
+      }
+    end
+    params do
+      requires :total_amount, type: BigDecimal, desc: 'PrepaidOrder amount.'
+      requires :pay_type, type: Integer, desc: 'LeaseOrder pay_type.'
+    end
+    post "refund" do
+      doorkeeper_authorize!
+      if (declared(params, include_missing: false)).present? && current_resource_owner.present?
+        error!({error: '错误的金额', detail: '提取余额不得低于 0'}, 400) unless params[:total_amount] > 0
+        error!({error: '错误的金额', detail: '提取余额不得高于可用余额'}, 400) unless params[:total_amount] < current_resource_owner.free_balance
+        current_resource_owner.prepaid_orders.create(total_amount: params[:total_amount], status: 2, pay_type: params[:pay_type])
+        current_resource_owner.balance_histories.create(
+            {
+                event: '提现游戏币',
+                amount: params[:total_amount],
+            })
       else
         error!({error: 'wrong params', detail: 'the params of prepaid order is invalid'}, 400)
       end
