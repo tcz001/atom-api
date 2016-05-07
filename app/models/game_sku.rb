@@ -3,4 +3,7 @@ class GameSku < ActiveRecord::Base
   has_and_belongs_to_many :sku_attributes, join_table: 'game_sku_attribute_sets'
 
   scope :published, -> { where(is_valid: true) }
+  def deposit
+    BigDecimal.new(150)
+  end
 end

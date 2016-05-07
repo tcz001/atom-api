@@ -3,6 +3,7 @@ module API
     class GameSku < Grape::Entity
       expose :id, as: :game_sku_id
       expose :price
+      expose :deposit
       expose :sku_attributes, using: API::Entities::SkuAttribute
     end
   end
