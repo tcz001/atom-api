@@ -59,7 +59,7 @@ module API
       end
 
       def cal_lack_of_balance(user, lease_order)
-        return if check_balance(user, lease_order)
+        return BigDecimal.new(0) if check_balance(user, lease_order)
         user.free_credit_balance >= lease_order.frozen_amount ?
             (lease_order.total_amount - user.free_balance) : ((lease_order.frozen_amount + lease_order.total_amount) - (user.free_credit_balance + user.free_balance))
       end
@@ -196,9 +196,9 @@ module API
     post "create" do
       doorkeeper_authorize!
       if current_resource_owner.grade.present? && current_resource_owner.grade == -1
-        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 403)
+        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 203)
       elsif current_resource_owner.grade.nil? || current_resource_owner.lease_orders.select { |o| [0, 2, 3, 4].include? o.status }.length >= LeaseOrder.limit_by_grade(current_resource_owner.grade)
-        error!({error: '订单数量限制', detail: '很抱歉您进行中的订单已达上限'}, 403)
+        error!({error: '订单数量限制', detail: '很抱歉您进行中的订单已达上限'}, 203)
       elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
         games = Game.where(id: params[:game_ids], is_valid: true)
         if games.present?
@@ -231,9 +231,9 @@ module API
     post "createv2" do
       doorkeeper_authorize!
       if current_resource_owner.grade.present? && current_resource_owner.grade == -1
-        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 403)
+        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 203)
       elsif current_resource_owner.grade.nil? || current_resource_owner.lease_orders.select { |o| [0, 2, 3, 4].include? o.status }.length >= LeaseOrder.limit_by_grade(current_resource_owner.grade)
-        error!({error: '订单数量限制', detail: '很抱歉您进行中的订单已达上限'}, 403)
+        error!({error: '订单数量限制', detail: '很抱歉您进行中的订单已达上限'}, 203)
       elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
         game_skus = GameSku.where(id: params[:game_sku_ids], is_valid: true)
         if game_skus.present?
@@ -263,7 +263,7 @@ module API
     post "createv3" do
       doorkeeper_authorize!
       if current_resource_owner.grade.present? && current_resource_owner.grade == -1
-        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 403)
+        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 203)
       elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
         game_skus = GameSku.where(id: params[:game_sku_ids], is_valid: true)
         if game_skus.present?
@@ -274,7 +274,7 @@ module API
                   frozen_amount: 150
               })
           if !check_balance(current_resource_owner, lease_order)
-            error!({error: '余额不足', detail: {lack_of_balance: cal_lack_of_balance(current_resource_owner, lease_order)}}, 403)
+            error!({error: '余额不足', detail: {lack_of_balance: cal_lack_of_balance(current_resource_owner, lease_order)}}, 203)
           else
             lease_order.save
             game_skus.each { |sku|
@@ -287,6 +287,39 @@ module API
             end
             present lease_order, with: API::Entities::LeaseOrder
           end
+        else
+          error!({error: 'sku id 错误', detail: '找不到对应的sku'}, 404)
+        end
+      end
+    end
+
+    desc 'create a LeaseOrder' do
+      headers Authorization: {
+          description: 'Check Resource Owner Authorization: \'Bearer token\'',
+          required: true
+      }
+    end
+    params do
+      requires :game_sku_ids, type: Array[Integer], desc: 'GameSKUs in a LeaseOrder.', documentation: {example: '{"game_sku_ids":[1,2,3]}'}
+    end
+    post "calc" do
+      doorkeeper_authorize!
+      if current_resource_owner.grade.present? && current_resource_owner.grade == -1
+        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 203)
+      elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
+        game_skus = GameSku.where(id: params[:game_sku_ids], is_valid: true)
+        if game_skus.present?
+          lease_order = LeaseOrder.new(
+              {
+                  status: 0,
+                  total_amount: game_skus.map { |g| g.price }.reduce(:+),
+                  frozen_amount: 150
+              })
+          present ({
+              user: current_resource_owner,
+              game_skus: game_skus,
+              lack: cal_lack_of_balance(current_resource_owner, lease_order)
+          }), with: API::Entities::LeaseOrderBrief
         else
           error!({error: 'sku id 错误', detail: '找不到对应的sku'}, 404)
         end
