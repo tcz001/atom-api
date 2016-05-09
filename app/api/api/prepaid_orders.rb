@@ -115,7 +115,7 @@ module API
       if (declared(params, include_missing: false)).present? && current_resource_owner.present?
         error!({error: '错误的金额', detail: '提取余额不得低于 0'}, 400) unless params[:total_amount] > 0
         error!({error: '错误的金额', detail: '提取余额不得高于可用余额'}, 400) unless params[:total_amount] < current_resource_owner.free_balance
-        json = verify_code(params[:code], params[:mobile])
+        json = verify_code(params[:code], current_resource_owner.username)
         if json['status'] == 'error'
           error!({error: json['content'], detail: json['content']}, 203)
         else
