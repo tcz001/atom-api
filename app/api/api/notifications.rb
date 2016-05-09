@@ -17,7 +17,7 @@ module API
       end
       def get_notifications_by_username_and_latest_nid(username, nid)
         begin
-          response = RestClient.get 'http://localhost:8091/external/notificationStore/getRecentByMobileAndNid?mobile='+username+'&nid='+nid
+          response = RestClient.get 'http://localhost:8091/external/notificationStore/getRecentByMobileAndNid?mobile='+username+'&nid='+nid.to_s
           notifications = JSON.parse(response)
           return notifications
         rescue Exception => e
