@@ -142,6 +142,7 @@ module API
       requires :serial_number, type: String, desc: 'LeaseOrder serial_number.'
     end
     post "cancel" do
+      error!({error: '请更新新版本', detail: '请更新新版本'}, 203)
       doorkeeper_authorize!
       if (declared(params, include_missing: false)).present? && current_resource_owner.present?
         lease_order = current_resource_owner.lease_orders.find_by_serial_number(params[:serial_number])
@@ -194,6 +195,7 @@ module API
       requires :game_ids, type: Array[Integer], desc: 'GameSKUs in a LeaseOrder.', documentation: {example: '{"game_ids":[1,2,3]}'}
     end
     post "create" do
+      error!({error: '创建订单失败,请更新新版本', detail: '创建订单失败,请更新新版本'}, 203)
       doorkeeper_authorize!
       if current_resource_owner.grade.present? && current_resource_owner.grade == -1
         error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 203)
@@ -229,6 +231,7 @@ module API
       requires :game_sku_ids, type: Array[Integer], desc: 'GameSKUs in a LeaseOrder.', documentation: {example: '{"game_sku_ids":[1,2,3]}'}
     end
     post "createv2" do
+      error!({error: '创建订单失败,请更新新版本', detail: '创建订单失败,请更新新版本'}, 203)
       doorkeeper_authorize!
       if current_resource_owner.grade.present? && current_resource_owner.grade == -1
         error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 203)
