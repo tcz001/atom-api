@@ -322,7 +322,7 @@ module API
               user: current_resource_owner,
               game_skus: game_skus,
               lack: cal_lack_of_balance(current_resource_owner, lease_order)
-          }), with: API::Entities::LeaseOrderBrief
+          }), with: API::Entities::LeaseOrderCalc
         else
           error!({error: 'sku id 错误', detail: '找不到对应的sku'}, 404)
         end

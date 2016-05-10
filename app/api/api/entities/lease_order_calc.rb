@@ -1,11 +1,10 @@
 module API
   module Entities
     class LeaseOrderCalc < Grape::Entity
-      expose :total_amount
-      expose :frozen_amount
-      expose :accounts, using: API::Entities::Account
-      expose :created_at
-      expose :updated_at
+      expose :user, using: API::Entities::User
+      expose :game_skus, using: API::Entities::GameSku
+      expose :lack
     end
   end
 end
+
