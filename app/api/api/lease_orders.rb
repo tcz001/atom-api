@@ -321,6 +321,7 @@ module API
           present ({
               user: current_resource_owner,
               game_skus: game_skus,
+              lease_order: lease_order,
               lack: cal_lack_of_balance(current_resource_owner, lease_order)
           }), with: API::Entities::LeaseOrderCalc
         else
