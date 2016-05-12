@@ -277,7 +277,7 @@ module API
                   frozen_amount: 150
               })
           if !check_balance(current_resource_owner, lease_order)
-            error!({error: '余额不足', detail: {lack_of_balance: cal_lack_of_balance(current_resource_owner, lease_order)}}, 203)
+            error!({error: '余额不足', detail: {lack: cal_lack_of_balance(current_resource_owner, lease_order)}}, 203)
           else
             lease_order.save
             game_skus.each { |sku|
