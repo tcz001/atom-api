@@ -98,6 +98,27 @@ module API
             })
         user.save
       end
+
+      def release_balance(user, lease_order)
+        user.free_balance += lease_order.total_amount + lease_order.deposit
+        user.frozen_balance -= lease_order.total_amount + lease_order.deposit
+        user.balance_histories.create(
+            {
+                event: '解冻游戏币',
+                amount: lease_order.total_amount + lease_order.deposit,
+                related_order: lease_order.serial_number,
+            })
+        user.free_credit_balance += lease_order.deposit_credit
+        user.frozen_credit_balance -= lease_order.deposit_credit
+        user.balance_histories.create(
+            {
+                event: '解冻信用币',
+                amount: lease_order.deposit_credit,
+                related_order: lease_order.serial_number,
+            })
+        user.save
+      end
+
     end
     desc 'gets all the LeaseOrders of a user' do
       headers Authorization: {
@@ -142,12 +163,12 @@ module API
       requires :serial_number, type: String, desc: 'LeaseOrder serial_number.'
     end
     post "cancel" do
-      error!({error: '请更新新版本', detail: '请更新新版本'}, 203)
       doorkeeper_authorize!
       if (declared(params, include_missing: false)).present? && current_resource_owner.present?
         lease_order = current_resource_owner.lease_orders.find_by_serial_number(params[:serial_number])
         if lease_order.status == 0
           lease_order.status = 6
+          release_balance(lease_order, current_resource_owner)
           lease_order.save
           Thread.new do
             send_admin_notification('有一条订单已取消', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
