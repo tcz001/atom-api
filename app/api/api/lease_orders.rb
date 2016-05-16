@@ -168,7 +168,7 @@ module API
         lease_order = current_resource_owner.lease_orders.find_by_serial_number(params[:serial_number])
         if lease_order.status == 0
           lease_order.status = 6
-          release_balance(lease_order, current_resource_owner)
+          release_balance(current_resource_owner, lease_order)
           lease_order.save
           Thread.new do
             send_admin_notification('有一条订单已取消', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
