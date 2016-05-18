@@ -175,7 +175,7 @@ module API
           end
           present lease_order, with: API::Entities::LeaseOrderBrief
         else
-          error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 400)
+          error!({error: '错误的状态', detail: '订单状态非法'}, 200)
         end
       end
     end
@@ -201,7 +201,7 @@ module API
           end
           present lease_order, with: API::Entities::LeaseOrderBrief
         else
-          error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 400)
+          error!({error: '错误的状态', detail: '订单状态非法'}, 200)
         end
       end
     end
@@ -216,12 +216,12 @@ module API
       requires :game_ids, type: Array[Integer], desc: 'GameSKUs in a LeaseOrder.', documentation: {example: '{"game_ids":[1,2,3]}'}
     end
     post "create" do
-      error!({error: '创建订单失败,请更新新版本', detail: '创建订单失败,请更新新版本'}, 203)
+      error!({error: '创建订单失败,请更新新版本', detail: '创建订单失败,请更新新版本'}, 200)
       doorkeeper_authorize!
       if current_resource_owner.grade.present? && current_resource_owner.grade == -1
-        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 203)
+        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 200)
       elsif current_resource_owner.grade.nil? || current_resource_owner.lease_orders.select { |o| [0, 2, 3, 4].include? o.status }.length >= LeaseOrder.limit_by_grade(current_resource_owner.grade)
-        error!({error: '订单数量限制', detail: '很抱歉您进行中的订单已达上限'}, 203)
+        error!({error: '订单数量限制', detail: '很抱歉您进行中的订单已达上限'}, 200)
       elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
         games = Game.where(id: params[:game_ids], is_valid: true)
         if games.present?
@@ -236,8 +236,9 @@ module API
             end
             present lease_order, with: API::Entities::LeaseOrder
           else
-            error!({error: 'wrong game_ids', detail: 'the game_ids of lease order is not found'}, 404)
+            error!({error: '错误的id', detail: 'game_id错误'}, 200)
           end
+          error!({error: '错误的id', detail: 'game_id错误'}, 200)
         end
       end
     end
@@ -252,12 +253,12 @@ module API
       requires :game_sku_ids, type: Array[Integer], desc: 'GameSKUs in a LeaseOrder.', documentation: {example: '{"game_sku_ids":[1,2,3]}'}
     end
     post "createv2" do
-      error!({error: '创建订单失败,请更新新版本', detail: '创建订单失败,请更新新版本'}, 203)
+      error!({error: '创建订单失败,请更新新版本', detail: '创建订单失败,请更新新版本'}, 200)
       doorkeeper_authorize!
       if current_resource_owner.grade.present? && current_resource_owner.grade == -1
-        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 203)
+        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 200)
       elsif current_resource_owner.grade.nil? || current_resource_owner.lease_orders.select { |o| [0, 2, 3, 4].include? o.status }.length >= LeaseOrder.limit_by_grade(current_resource_owner.grade)
-        error!({error: '订单数量限制', detail: '很抱歉您进行中的订单已达上限'}, 203)
+        error!({error: '订单数量限制', detail: '很抱歉您进行中的订单已达上限'}, 200)
       elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
         game_skus = GameSku.where(id: params[:game_sku_ids], is_valid: true)
         if game_skus.present?
@@ -270,7 +271,7 @@ module API
           end
           present lease_order, with: API::Entities::LeaseOrder
         else
-          error!({error: 'wrong game_ids', detail: 'the game_ids of lease order is not found'}, 404)
+          error!({error: '错误的id', detail: 'game_id错误'}, 200)
         end
       end
     end
@@ -287,7 +288,7 @@ module API
     post "createv3" do
       doorkeeper_authorize!
       if current_resource_owner.grade.present? && current_resource_owner.grade == -1
-        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 203)
+        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 200)
       elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
         game_skus = GameSku.where(id: params[:game_sku_ids], is_valid: true)
         if game_skus.present?
@@ -312,7 +313,7 @@ module API
             present lease_order, with: API::Entities::LeaseOrder
           end
         else
-          error!({error: 'sku id 错误', detail: '找不到对应的sku'}, 404)
+          error!({error: 'sku id 错误', detail: '找不到对应的sku'}, 200)
         end
       end
     end
@@ -329,7 +330,7 @@ module API
     post "calc" do
       doorkeeper_authorize!
       if current_resource_owner.grade.present? && current_resource_owner.grade == -1
-        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 203)
+        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 200)
       elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
         game_skus = GameSku.where(id: params[:game_sku_ids], is_valid: true)
         if game_skus.present?
@@ -346,7 +347,7 @@ module API
               lack: cal_lack_of_balance(current_resource_owner, lease_order)
           }), with: API::Entities::LeaseOrderCalc
         else
-          error!({error: 'sku id 错误', detail: '找不到对应的sku'}, 404)
+          error!({error: 'sku id 错误', detail: '找不到对应的sku'}, 200)
         end
       end
     end
@@ -362,6 +363,7 @@ module API
       requires :pay_type, type: Integer, desc: 'LeaseOrder pay_type.'
     end
     post "charge" do
+      error!({error: '创建订单失败,请更新新版本', detail: '创建订单失败,请更新新版本'}, 200)
       doorkeeper_authorize!
       if (declared(params, include_missing: false)).present? && current_resource_owner.present?
         lease_order = current_resource_owner.lease_orders.find_by_serial_number(params[:serial_number])
@@ -378,7 +380,7 @@ module API
             error!({error: 'unexpected error', detail: 'external payment service error'}, 500)
           end
         else
-          error!({error: 'wrong status', detail: 'the status of lease order is invalid'}, 400)
+          error!({error: '错误的状态', detail: '订单状态非法'}, 200)
         end
       end
     end
@@ -393,6 +395,7 @@ module API
       optional :event, type: JSON
     end
     post "charge_confirm" do
+      error!({error: '创建订单失败,请更新新版本', detail: '创建订单失败,请更新新版本'}, 200)
       check_signature!
       if params.type == 'charge.succeeded'
         charge = params.data.object

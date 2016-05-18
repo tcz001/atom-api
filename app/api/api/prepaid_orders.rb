@@ -80,8 +80,10 @@ module API
     end
     post "charge" do
       doorkeeper_authorize!
+      if current_resource_owner.grade.present? && current_resource_owner.grade == -1
+        error!({error: '无权限', detail: '很抱歉您的账号无法充值，有疑问请咨询客服'}, 200)
       if (declared(params, include_missing: false)).present? && current_resource_owner.present?
-        error!({error: '错误的金额', detail: '充值余额不得低于 0'}, 400) unless params[:total_amount] > 0
+        error!({error: '错误的金额', detail: '充值余额不得低于 0'}, 200) unless params[:total_amount] > 0
         prepaid_order = current_resource_owner.prepaid_orders.create(total_amount: params[:total_amount], status: 0, pay_type: params[:pay_type])
         begin
           charge = create_prepaid_charge(prepaid_order)
@@ -112,12 +114,14 @@ module API
     end
     post "refund" do
       doorkeeper_authorize!
+      if current_resource_owner.grade.present? && current_resource_owner.grade == -1
+        error!({error: '无权限', detail: '很抱歉您的账号无法提现，有疑问请咨询客服'}, 200)
       if (declared(params, include_missing: false)).present? && current_resource_owner.present?
-        error!({error: '错误的金额', detail: '提取余额不得低于 0'}, 400) unless params[:total_amount] > 0
-        error!({error: '错误的金额', detail: '提取余额不得高于可用余额'}, 400) unless params[:total_amount] < current_resource_owner.free_balance
+        error!({error: '错误的金额', detail: '提取余额不得低于 0'}, 200) unless params[:total_amount] > 0
+        error!({error: '错误的金额', detail: '提取余额不得高于可用余额'}, 200) unless params[:total_amount] < current_resource_owner.free_balance
         json = verify_code(params[:code], current_resource_owner.username)
         if json['status'] == 'error'
-          error!({error: json['content'], detail: json['content']}, 203)
+          error!({error: json['content'], detail: json['content']}, 200)
         else
           current_resource_owner.prepaid_orders.create(total_amount: params[:total_amount], status: 2, pay_type: params[:pay_type])
           # TODO: store alipay account and name
