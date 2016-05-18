@@ -82,6 +82,7 @@ module API
       doorkeeper_authorize!
       if current_resource_owner.grade.present? && current_resource_owner.grade == -1
         error!({error: '无权限', detail: '很抱歉您的账号无法充值，有疑问请咨询客服'}, 200)
+      end
       if (declared(params, include_missing: false)).present? && current_resource_owner.present?
         error!({error: '错误的金额', detail: '充值余额不得低于 0'}, 200) unless params[:total_amount] > 0
         prepaid_order = current_resource_owner.prepaid_orders.create(total_amount: params[:total_amount], status: 0, pay_type: params[:pay_type])
@@ -116,6 +117,7 @@ module API
       doorkeeper_authorize!
       if current_resource_owner.grade.present? && current_resource_owner.grade == -1
         error!({error: '无权限', detail: '很抱歉您的账号无法提现，有疑问请咨询客服'}, 200)
+      end
       if (declared(params, include_missing: false)).present? && current_resource_owner.present?
         error!({error: '错误的金额', detail: '提取余额不得低于 0'}, 200) unless params[:total_amount] > 0
         error!({error: '错误的金额', detail: '提取余额不得高于可用余额'}, 200) unless params[:total_amount] < current_resource_owner.free_balance
