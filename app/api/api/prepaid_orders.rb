@@ -125,7 +125,14 @@ module API
         if json['status'] == 'error'
           error!({error: json['content'], detail: json['content']}, 200)
         else
-          current_resource_owner.prepaid_orders.create(total_amount: params[:total_amount], status: 2, pay_type: params[:pay_type])
+          current_resource_owner.prepaid_orders.create(
+              {
+                  total_amount: params[:total_amount],
+                  status: 2,
+                  pay_type: params[:pay_type],
+                  alipay_account: params[:alipay_account],
+                  alipay_name: params[:alipay_name],
+              })
           # TODO: store alipay account and name
           current_resource_owner.balance_histories.create(
               {
