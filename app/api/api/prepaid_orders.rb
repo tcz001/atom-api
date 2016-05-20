@@ -120,7 +120,7 @@ module API
       end
       if (declared(params, include_missing: false)).present? && current_resource_owner.present?
         error!({error: '错误的金额', detail: '提取余额不得低于 0'}, 200) unless params[:total_amount] > 0
-        error!({error: '错误的金额', detail: '提取余额不得高于可用余额'}, 200) unless params[:total_amount] < current_resource_owner.free_balance
+        error!({error: '错误的金额', detail: '提取余额不得高于可用余额'}, 200) unless params[:total_amount] <= current_resource_owner.free_balance
         json = verify_code(params[:code], current_resource_owner.username)
         if json['status'] == 'error'
           error!({error: json['content'], detail: json['content']}, 200)
@@ -133,7 +133,6 @@ module API
                   alipay_account: params[:alipay_account],
                   alipay_name: params[:alipay_name],
               })
-          # TODO: store alipay account and name
           current_resource_owner.balance_histories.create(
               {
                   event: '提现游戏币',
