@@ -138,6 +138,9 @@ module API
                   event: '提现游戏币',
                   amount: params[:total_amount],
               })
+          current_resource_owner.free_balance -= params[:total_amount]
+          current_resource_owner.frozen_balance += params[:total_amount]
+          current_resource_owner.save
         end
       else
         error!({error: 'wrong params', detail: 'the params of prepaid order is invalid'}, 400)
