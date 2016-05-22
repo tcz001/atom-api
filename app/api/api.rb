@@ -36,6 +36,7 @@ module API
     mount API::BalanceHistories => '/balance_histories'
     mount API::Galleries => '/galleries'
     mount API::Notifications => '/notifications'
+    mount API::UrlBinds => '/url_binds'
 
     add_swagger_documentation(
         base_path: '/api',
