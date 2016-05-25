@@ -138,9 +138,11 @@ module API
                   event: '提现游戏币',
                   amount: params[:total_amount],
               })
-          current_resource_owner.free_balance -= params[:total_amount]
-          current_resource_owner.frozen_balance += params[:total_amount]
-          current_resource_owner.save
+          current_resource_owner.update(
+              {
+                  free_balance: current_resource_owner.free_balance - params[:total_amount],
+                  frozen_balance: current_resource_owner.frozen_balance + params[:total_amount],
+              })
         end
       else
         error!({error: 'wrong params', detail: 'the params of prepaid order is invalid'}, 400)
@@ -165,16 +167,17 @@ module API
           prepaid_order = charge_find_by_pingxx_ch_id.prepaid_order
           if prepaid_order.present? && prepaid_order.status == 0
             prepaid_order.user.free_balance = 0 if prepaid_order.user.free_balance.nil?
-            prepaid_order.user.free_balance += prepaid_order.total_amount
             prepaid_order.user.balance_histories.create(
                 {
                     event: '充值游戏币',
                     amount: prepaid_order.total_amount,
                     related_order: prepaid_order.serial_number,
                 })
-            prepaid_order.user.save
-            prepaid_order.status = 1
-            prepaid_order.save
+            prepaid_order.user.update(
+                {
+                    free_balance: prepaid_order.user.free_balance + prepaid_order.total_amount,
+                })
+            prepaid_order.update(status: 1)
           else
             logger.error 'receive and discard a invalid charge confirm'
             error!({error: 'prepaid_order error', detail: "charge confirming a invalid status=#{prepaid_order.status} prepaid_order"}, 400)

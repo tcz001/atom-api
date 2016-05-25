@@ -395,7 +395,7 @@ module API
       optional :event, type: JSON
     end
     post "charge_confirm" do
-      error!({error: '创建订单失败,请更新新版本', detail: '创建订单失败,请更新新版本'}, 200)
+      error!({error: '请更新新版本', detail: '请更新新版本'}, 203)
       check_signature!
       if params.type == 'charge.succeeded'
         charge = params.data.object
