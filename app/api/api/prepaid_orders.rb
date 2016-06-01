@@ -177,7 +177,7 @@ module API
                 {
                     free_balance: prepaid_order.user.free_balance + prepaid_order.total_amount,
                 })
-            prepaid_order.update(status: 1)
+            prepaid_order.update({status: 1})
           else
             logger.error 'receive and discard a invalid charge confirm'
             error!({error: 'prepaid_order error', detail: "charge confirming a invalid status=#{prepaid_order.status} prepaid_order"}, 400)
