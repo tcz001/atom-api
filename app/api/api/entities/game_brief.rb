@@ -12,6 +12,7 @@ module API
       expose :original_price
       expose :display_reference_price, as: :reference_price
       expose :price_range
+      expose :deposit
       expose :cover
       expose :cover_small
       expose :display_language, as: :language

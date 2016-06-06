@@ -296,7 +296,7 @@ module API
               {
                   status: 0,
                   total_amount: game_skus.map { |g| g.price }.reduce(:+),
-                  frozen_amount: 150
+                  frozen_amount: game_skus.map { |g| g.game.deposit }.reduce(:+)
               })
           if !check_balance(current_resource_owner, lease_order)
             error!({error: '余额不足', detail: {lack: cal_lack_of_balance(current_resource_owner, lease_order)}}, 203)
@@ -338,7 +338,7 @@ module API
               {
                   status: 0,
                   total_amount: game_skus.map { |g| g.price }.reduce(:+),
-                  frozen_amount: 150
+                  frozen_amount: game_skus.map { |g| g.game.deposit }.reduce(:+)
               })
           present ({
               user: current_resource_owner,

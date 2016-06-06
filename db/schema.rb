@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160519084309) do
+ActiveRecord::Schema.define(version: 20160606175701) do
 
   create_table "accounts", force: :cascade do |t|
     t.string "account", limit: 255
@@ -112,6 +112,7 @@ ActiveRecord::Schema.define(version: 20160519084309) do
     t.text "detail", limit: 65535
     t.datetime "release_at"
     t.string "language", limit: 255
+    t.decimal "deposit", precision: 9, scale: 2
   end
 
   add_index "games", ["game_type_id"], name: "index_games_on_game_type_id", using: :btree
@@ -242,13 +243,6 @@ ActiveRecord::Schema.define(version: 20160519084309) do
     t.decimal "frozen_balance", precision: 9, scale: 2, default: 0.0
     t.decimal "free_credit_balance", precision: 9, scale: 2, default: 0.0
     t.decimal "frozen_credit_balance", precision: 9, scale: 2, default: 0.0
-  end
-
-  create_table "url_binds", force: :cascade do |t|
-    t.string "code", limit: 255
-    t.string "url", limit: 255
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
