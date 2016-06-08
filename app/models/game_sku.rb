@@ -4,6 +4,6 @@ class GameSku < ActiveRecord::Base
 
   scope :published, -> { where(is_valid: true) }
   def deposit
-    BigDecimal.new(150)
+    self.game.deposit
   end
 end
