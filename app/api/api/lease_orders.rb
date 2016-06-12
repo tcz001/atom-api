@@ -171,7 +171,7 @@ module API
           release_balance(current_resource_owner, lease_order)
           lease_order.save
           Thread.new do
-            send_admin_notification('有一条订单已取消', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
+            send_admin_notification('有一条订单已取消', {type: 'order_cancel', jumpTo:'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
           end
           present lease_order, with: API::Entities::LeaseOrderBrief
         else
@@ -197,7 +197,7 @@ module API
           lease_order.status = 4
           lease_order.save
           Thread.new do
-            send_admin_notification('订单状态变更请及时查看', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
+            send_admin_notification('订单状态变更请及时查看', {type: 'order_change',jumpTo:'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
           end
           present lease_order, with: API::Entities::LeaseOrderBrief
         else
@@ -232,7 +232,7 @@ module API
               lease_order.accounts.create({game_sku: sku})
             }
             Thread.new do
-              send_admin_notification('有新的订单', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
+              send_admin_notification('有新的订单', {type: 'order_new',jumpTo:'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
             end
             present lease_order, with: API::Entities::LeaseOrder
           else
@@ -267,7 +267,7 @@ module API
             lease_order.accounts.create({game_sku: sku})
           }
           Thread.new do
-            send_admin_notification('有新的订单', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
+            send_admin_notification('有新的订单', {type: 'order_new',jumpTo:'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
           end
           present lease_order, with: API::Entities::LeaseOrder
         else
@@ -308,7 +308,7 @@ module API
             freeze_balance(current_resource_owner, lease_order)
 
             Thread.new do
-              send_admin_notification('有新的订单', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
+              send_admin_notification('有新的订单', {type: 'order_new',jumpTo:'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
             end
             present lease_order, with: API::Entities::LeaseOrder
           end
@@ -411,7 +411,7 @@ module API
             lease_order.status = 3
             lease_order.save
             Thread.new do
-              send_admin_notification('有一条订单已支付', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
+              send_admin_notification('有一条订单已支付', {type: 'order_pay',jumpTo:'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
             end
           else
             logger.error 'receive and discard a invalid charge confirm'
