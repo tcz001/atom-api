@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160606175701) do
+ActiveRecord::Schema.define(version: 20160613030451) do
 
   create_table "accounts", force: :cascade do |t|
     t.string "account", limit: 255
@@ -24,6 +24,7 @@ ActiveRecord::Schema.define(version: 20160606175701) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "game_sku_id", limit: 4
+    t.integer "duration", limit: 4
   end
 
   add_index "accounts", ["game_sku_id"], name: "index_accounts_on_game_sku_id", using: :btree

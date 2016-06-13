@@ -6,6 +6,7 @@ module API
       expose :status
       expose :start_at
       expose :expire_at
+      expose :duration
     end
   end
 end

@@ -47,6 +47,15 @@ module API
 
       end
 
+      def check_limitation(i, game_skus)
+        game_skus.each{ |sku|
+          if sku.sku_attributes.find_by_name('租用天数').option_value.to_i > i.find(id:sku.id).first.duration
+            return false
+          end
+        }
+        return true
+      end
+
       def check_balance(user, lease_order)
         if user.free_credit_balance >= lease_order.frozen_amount && user.free_balance >= lease_order.total_amount
           return true
@@ -299,7 +308,7 @@ module API
                   frozen_amount: game_skus.map { |g| g.game.deposit }.reduce(:+)
               })
           if !check_balance(current_resource_owner, lease_order)
-            error!({error: '余额不足', detail: {lack: cal_lack_of_balance(current_resource_owner, lease_order)}}, 203)
+            error!({error: '余额不足', detail: {lack: cal_lack_of_balance(current_resource_owner, lease_order)}}, 200)
           else
             lease_order.save
             game_skus.each { |sku|
@@ -325,6 +334,51 @@ module API
       }
     end
     params do
+      requires :game_skus, type: Array[Hash], desc: 'GameSKUs in a LeaseOrder.', documentation: {example: '{"game_skus":[{"id":1,"duration":1}]}'}
+    end
+    post "createv4" do
+      doorkeeper_authorize!
+      if current_resource_owner.grade.present? && current_resource_owner.grade == -1
+        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 200)
+      elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
+        game_skus = GameSku.where(id: params[:game_skus].collect(&:id), is_valid: true)
+        if game_skus.present?
+          unless check_limitation(params[:game_skus], game_skus)
+            error!({error: '租用期限低于最低限制', detail: '租用期限低于最低限制'}, 200)
+          end
+          lease_order = current_resource_owner.lease_orders.build(
+              {
+                  status: 0,
+                  total_amount: game_skus.map { |sku| sku.price * params[:game_skus].find(id:sku.id).first.duration}.reduce(:+),
+                  frozen_amount: game_skus.map { |sku| sku.game.deposit }.reduce(:+)
+              })
+          if !check_balance(current_resource_owner, lease_order)
+            error!({error: '余额不足', detail: {lack: cal_lack_of_balance(current_resource_owner, lease_order)}}, 200)
+          else
+            lease_order.save
+            game_skus.each { |sku|
+              lease_order.accounts.create({game_sku: sku, duration: params[:game_skus].find(id:sku.id).first.duration})
+            }
+            freeze_balance(current_resource_owner, lease_order)
+
+            Thread.new do
+              send_admin_notification('有新的订单', {type: 'leaseOrder', content: {serialNumber: lease_order.serial_number}}.to_json)
+            end
+            present lease_order, with: API::Entities::LeaseOrder
+          end
+        else
+          error!({error: 'sku id 错误', detail: '找不到对应的sku'}, 200)
+        end
+      end
+    end
+
+    desc 'calculate a LeaseOrder' do
+      headers Authorization: {
+          description: 'Check Resource Owner Authorization: \'Bearer token\'',
+          required: true
+      }
+    end
+    params do
       requires :game_sku_ids, type: Array[Integer], desc: 'GameSKUs in a LeaseOrder.', documentation: {example: '{"game_sku_ids":[1,2,3]}'}
     end
     post "calc" do
@@ -339,6 +393,43 @@ module API
                   status: 0,
                   total_amount: game_skus.map { |g| g.price }.reduce(:+),
                   frozen_amount: game_skus.map { |g| g.game.deposit }.reduce(:+)
+              })
+          present ({
+              user: current_resource_owner,
+              game_skus: game_skus,
+              lease_order: lease_order,
+              lack: cal_lack_of_balance(current_resource_owner, lease_order)
+          }), with: API::Entities::LeaseOrderCalc
+        else
+          error!({error: 'sku id 错误', detail: '找不到对应的sku'}, 200)
+        end
+      end
+    end
+
+    desc 'calculate a LeaseOrder' do
+      headers Authorization: {
+          description: 'Check Resource Owner Authorization: \'Bearer token\'',
+          required: true
+      }
+    end
+    params do
+      requires :game_skus, type: Array[Hash], desc: 'GameSKUs in a LeaseOrder.', documentation: {example: '{"game_skus":[{"id":1,"duration":1}]}'}
+    end
+    post "calcv2" do
+      doorkeeper_authorize!
+      if current_resource_owner.grade.present? && current_resource_owner.grade == -1
+        error!({error: '无权限', detail: '很抱歉您的账号无法下单，有疑问请咨询客服'}, 200)
+      elsif (declared(params, include_missing: false)).present? && current_resource_owner.present?
+        game_skus = GameSku.where(id: params[:game_skus].collect(&:id), is_valid: true)
+        if game_skus.present?
+          unless check_limitation(params[:game_skus], game_skus)
+            error!({error: '租用期限低于最低限制', detail: '租用期限低于最低限制'}, 200)
+          end
+          lease_order = LeaseOrder.new(
+              {
+                  status: 0,
+                  total_amount: game_skus.map { |sku| sku.price * params[:game_skus].find(id:sku.id).first.duration}.reduce(:+),
+                  frozen_amount: game_skus.map { |sku| sku.game.deposit }.reduce(:+)
               })
           present ({
               user: current_resource_owner,

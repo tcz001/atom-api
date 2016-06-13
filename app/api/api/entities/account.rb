@@ -8,6 +8,7 @@ module API
       expose :password
       expose :start_at
       expose :expire_at
+      expose :duration
     end
   end
 end
