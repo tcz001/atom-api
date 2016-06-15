@@ -8,8 +8,8 @@ module API
         charge = Pingpp::Charge.create(
             :order_no => prepaid_order.serial_number,
             :amount => (prepaid_order.total_amount*100).to_i,
-            :subject => "#{prepaid_order.user.username} is prepaying #{prepaid_order.total_amount}",
-            :body => "#{prepaid_order.user.username} is prepaying #{prepaid_order.total_amount}",
+            :subject => "#{prepaid_order.user.username}的易酷订单",
+            :body => "#{prepaid_order.user.username}的易酷订单",
             :channel => 'alipay',
             :currency => 'cny',
             :client_ip => headers['X-Real-IP'].present? ? headers['X-Real-IP'] : '127.0.0.1',
