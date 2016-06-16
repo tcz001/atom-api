@@ -210,7 +210,11 @@ module API
           end
           present lease_order, with: API::Entities::LeaseOrderBrief
         else
-          error!({error: '错误的状态', detail: '订单状态非法'}, 200)
+          if lease_order.status == 4
+            error!({error: '归还申请已提交，请等待客服确认操作', detail: '归还申请已提交，请等待客服确认操作'}, 200)
+          else
+            error!({error: '错误的状态', detail: '订单状态非法'}, 200)
+          end
         end
       end
     end
