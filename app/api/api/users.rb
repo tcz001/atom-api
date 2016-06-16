@@ -63,9 +63,9 @@ module API
 
     desc 'update my User password' do
       headers Authorization: {
-                  description: 'Check Resource Owner Authorization: \'Bearer token\'',
-                  required: true
-              }
+          description: 'Check Resource Owner Authorization: \'Bearer token\'',
+          required: true
+      }
     end
     params do
       requires :old_password, type: String, desc: 'old password.'
@@ -75,7 +75,7 @@ module API
       doorkeeper_authorize!
       begin
         if current_resource_owner.valid_password?(params[:old_password])
-          current_resource_owner.update({password:params[:new_password]})
+          current_resource_owner.update({password: params[:new_password]})
         else
           error!({error: '旧密码不正确', detail: '旧密码不正确'}, 203)
         end
@@ -107,20 +107,29 @@ module API
 
     desc 'return my User info' do
       headers Authorization: {
-                  description: 'Check Resource Owner Authorization: \'Bearer token\'',
-                  required: true
-              }
+          description: 'Check Resource Owner Authorization: \'Bearer token\'',
+          required: true
+      }
     end
     get "me" do
       doorkeeper_authorize!
+      current_resource_owner.update(
+          {
+              last_sign_in_at: current_resource_owner.current_sign_in_at,
+              last_sign_in_ip: current_resource_owner.current_sign_in_ip,
+              current_sign_in_at: Time.now,
+              current_sign_in_ip: request.env["HTTP_X_FORWARDED_FOR"],
+              sign_in_count: current_resource_owner.sign_in_count + 1
+          }
+      )
       present current_resource_owner, with: API::Entities::User
     end
 
     desc 'update my User avatar' do
       headers Authorization: {
-                  description: 'Check Resource Owner Authorization: \'Bearer token\'',
-                  required: true
-              }
+          description: 'Check Resource Owner Authorization: \'Bearer token\'',
+          required: true
+      }
     end
     params do
       requires :image_file, type: File, desc: 'avatar file.'
